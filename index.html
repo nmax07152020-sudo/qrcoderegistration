@@ -73,172 +73,167 @@
         </div>
       </div>
 
-      <!-- MAIN PUBLIC CONTENT (QR & QUEUE + PATIENT FORM) -->
-      <div id="publicMainContent">
-        
-        <!-- DOCTOR QR CODES & QUEUE DISPLAY -->
-        <div id="section-qr" class="mb-5">
-          <div class="alert alert-info text-center mb-4 shadow-sm">
-            <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lumabas agad ang iyong Patient Form.
-          </div>
-          <div class="row text-center">
-            
-            <div class="col-md-6 col-lg-3 mb-4">
-              <div class="card p-3 qr-card h-100">
-                <h5 class="text-primary fw-bold mb-1">Pediatrics</h5>
-                <small class="text-muted">Pambata</small>
-                <div class="qr-container" id="qr-Pediatrics"></div>
-                <small class="text-secondary fw-bold mb-2">Scan for Pediatrics</small>
-                <div class="mt-auto">
-                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
-                  <div class="queue-box" id="num-Pediatrics">000</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3 mb-4">
-              <div class="card p-3 qr-card h-100">
-                <h5 class="text-primary fw-bold mb-1">Internal Medicine</h5>
-                <small class="text-muted">Adult Care</small>
-                <div class="qr-container" id="qr-InternalMedicine"></div>
-                <small class="text-secondary fw-bold mb-2">Scan for Internal Med</small>
-                <div class="mt-auto">
-                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
-                  <div class="queue-box" id="num-InternalMedicine">000</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3 mb-4">
-              <div class="card p-3 qr-card h-100">
-                <h5 class="text-primary fw-bold mb-1">General Physician</h5>
-                <small class="text-muted">General Health</small>
-                <div class="qr-container" id="qr-GeneralPhysician"></div>
-                <small class="text-secondary fw-bold mb-2">Scan for General Phys</small>
-                <div class="mt-auto">
-                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
-                  <div class="queue-box" id="num-GeneralPhysician">000</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-6 col-lg-3 mb-4">
-              <div class="card p-3 qr-card h-100">
-                <h5 class="text-primary fw-bold mb-1">Family Medicine</h5>
-                <small class="text-muted">Family Care</small>
-                <div class="qr-container" id="qr-FamilyMedicine"></div>
-                <small class="text-secondary fw-bold mb-2">Scan for Family Med</small>
-                <div class="mt-auto">
-                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
-                  <div class="queue-box" id="num-FamilyMedicine">000</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
+      <!-- MAIN PUBLIC CONTENT (DOCTOR QR DISPLAY) -->
+      <div id="section-qr" class="mb-5">
+        <div class="alert alert-info text-center mb-4 shadow-sm">
+          <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lumabas agad ang iyong Patient Form.
         </div>
-
-        <!-- PATIENT INFORMATION FORM SECTION -->
-        <div id="section-form">
-          <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-              <div class="card p-4">
-                
-                <div id="selectedDoctorNotice" class="alert alert-primary text-center fw-bold mb-3 d-none">
-                  ✓ Konsultasyon kay: <span id="docNoticeName" class="text-uppercase text-decoration-underline"></span>
-                </div>
-
-                <h4 class="mb-3 text-primary text-center">Patient Information Form</h4>
-
-                <form id="appointmentForm">
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Doktor / Espesyalisasyon</label>
-                    <select class="form-select" id="specialization" required>
-                      <option value="">-- Pumili ng Doktor --</option>
-                      <option value="Pediatrics">Pediatrics (Pambata)</option>
-                      <option value="Internal Medicine">Internal Medicine</option>
-                      <option value="General Physician">General Physician</option>
-                      <option value="Family Medicine">Family Medicine</option>
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Buong Pangalan (Full Name)</label>
-                    <input type="text" class="form-control" id="fullName" required placeholder="Dela Cruz, Juan A.">
-                  </div>
-
-                  <div class="row">
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">Edad (Age)</label>
-                      <input type="number" class="form-control" id="age" required min="0" max="120">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                      <label class="form-label fw-bold">Kaarawan (Birthday)</label>
-                      <input type="date" class="form-control" id="birthday" required>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Contact Number (Mobile No.)</label>
-                    <input type="tel" class="form-control" id="contactNumber" required placeholder="09123456789" pattern="09[0-9]{9}">
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Barangay sa Antipolo</label>
-                    <select class="form-select" id="barangay" required>
-                      <option value="">-- Pumili ng Barangay --</option>
-                      <option value="Bagong Nayon">Bagong Nayon</option>
-                      <option value="Beverly Hills">Beverly Hills</option>
-                      <option value="Calawis">Calawis</option>
-                      <option value="Cupang">Cupang</option>
-                      <option value="Dalig">Dalig</option>
-                      <option value="Dela Paz">Dela Paz</option>
-                      <option value="Inarawan">Inarawan</option>
-                      <option value="Mambugan">Mambugan</option>
-                      <option value="Mayamot">Mayamot</option>
-                      <option value="Muntindilaw">Muntindilaw</option>
-                      <option value="San Isidro">San Isidro</option>
-                      <option value="San Jose">San Jose</option>
-                      <option value="San Juan">San Juan</option>
-                      <option value="San Luis">San Luis</option>
-                      <option value="San Roque">San Roque</option>
-                      <option value="Santa Cruz">Santa Cruz</option>
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="form-label fw-bold">Kumpletong Tirahan (Address)</label>
-                    <textarea class="form-control" id="address" rows="2" required placeholder="House No., Street, Sitio/Subdivision"></textarea>
-                  </div>
-
-                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitBtn">
-                    <span id="btnText">I-submit at Magrehistro</span>
-                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
-                  </button>
-                </form>
-
-                <!-- RESIBO / KATIBAYAN -->
-                <div id="receiptSection" class="mt-4 d-none">
-                  <div class="receipt-box text-center">
-                    <h5 class="text-success fw-bold mb-3">✓ Matagumpay na Naka-Register!</h5>
-                    <hr>
-                    <div class="text-start mb-3">
-                      <p class="mb-1"><strong>Ref Code:</strong> <span id="rRef" class="text-primary fw-bold"></span></p>
-                      <p class="mb-1"><strong>Pangalan:</strong> <span id="rName"></span></p>
-                      <p class="mb-1"><strong>Contact No:</strong> <span id="rContact"></span></p>
-                      <p class="mb-1"><strong>Doktor:</strong> <span id="rSpec" class="badge bg-primary"></span></p>
-                      <p class="mb-1"><strong>Barangay:</strong> <span id="rBrgy"></span></p>
-                      <p class="mb-1"><strong>Petsa/Oras:</strong> <span id="rTime"></span></p>
-                    </div>
-                    <button class="btn btn-outline-primary btn-sm w-100" onclick="window.print()">I-print / Save bilang PDF</button>
-                  </div>
-                </div>
-
+        <div class="row text-center">
+          
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card p-3 qr-card h-100">
+              <h5 class="text-primary fw-bold mb-1">Pediatrics</h5>
+              <small class="text-muted">Pambata</small>
+              <div class="qr-container" id="qr-Pediatrics"></div>
+              <small class="text-secondary fw-bold mb-2">Scan for Pediatrics</small>
+              <div class="mt-auto">
+                <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                <div class="queue-box" id="num-Pediatrics">000</div>
               </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card p-3 qr-card h-100">
+              <h5 class="text-primary fw-bold mb-1">Internal Medicine</h5>
+              <small class="text-muted">Adult Care</small>
+              <div class="qr-container" id="qr-InternalMedicine"></div>
+              <small class="text-secondary fw-bold mb-2">Scan for Internal Med</small>
+              <div class="mt-auto">
+                <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                <div class="queue-box" id="num-InternalMedicine">000</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card p-3 qr-card h-100">
+              <h5 class="text-primary fw-bold mb-1">General Physician</h5>
+              <small class="text-muted">General Health</small>
+              <div class="qr-container" id="qr-GeneralPhysician"></div>
+              <small class="text-secondary fw-bold mb-2">Scan for General Phys</small>
+              <div class="mt-auto">
+                <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                <div class="queue-box" id="num-GeneralPhysician">000</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card p-3 qr-card h-100">
+              <h5 class="text-primary fw-bold mb-1">Family Medicine</h5>
+              <small class="text-muted">Family Care</small>
+              <div class="qr-container" id="qr-FamilyMedicine"></div>
+              <small class="text-secondary fw-bold mb-2">Scan for Family Med</small>
+              <div class="mt-auto">
+                <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                <div class="queue-box" id="num-FamilyMedicine">000</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PATIENT INFORMATION FORM SECTION (SA BABA NG PUBLIC DASHBOARD) -->
+      <div id="section-form" class="mt-4">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+            <div class="card p-4 shadow">
+              
+              <div id="selectedDoctorNotice" class="alert alert-primary text-center fw-bold mb-3 d-none">
+                ✓ Konsultasyon kay: <span id="docNoticeName" class="text-uppercase text-decoration-underline"></span>
+              </div>
+
+              <h4 class="mb-3 text-primary text-center fw-bold">Patient Information Form</h4>
+
+              <form id="appointmentForm">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Doktor / Espesyalisasyon</label>
+                  <select class="form-select" id="specialization" required>
+                    <option value="">-- Pumili ng Doktor --</option>
+                    <option value="Pediatrics">Pediatrics (Pambata)</option>
+                    <option value="Internal Medicine">Internal Medicine</option>
+                    <option value="General Physician">General Physician</option>
+                    <option value="Family Medicine">Family Medicine</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Buong Pangalan (Full Name)</label>
+                  <input type="text" class="form-control" id="fullName" required placeholder="Dela Cruz, Juan A.">
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Edad (Age)</label>
+                    <input type="number" class="form-control" id="age" required min="0" max="120">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Kaarawan (Birthday)</label>
+                    <input type="date" class="form-control" id="birthday" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Contact Number (Mobile No.)</label>
+                  <input type="tel" class="form-control" id="contactNumber" required placeholder="09123456789" pattern="09[0-9]{9}">
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Barangay sa Antipolo</label>
+                  <select class="form-select" id="barangay" required>
+                    <option value="">-- Pumili ng Barangay --</option>
+                    <option value="Bagong Nayon">Bagong Nayon</option>
+                    <option value="Beverly Hills">Beverly Hills</option>
+                    <option value="Calawis">Calawis</option>
+                    <option value="Cupang">Cupang</option>
+                    <option value="Dalig">Dalig</option>
+                    <option value="Dela Paz">Dela Paz</option>
+                    <option value="Inarawan">Inarawan</option>
+                    <option value="Mambugan">Mambugan</option>
+                    <option value="Mayamot">Mayamot</option>
+                    <option value="Muntindilaw">Muntindilaw</option>
+                    <option value="San Isidro">San Isidro</option>
+                    <option value="San Jose">San Jose</option>
+                    <option value="San Juan">San Juan</option>
+                    <option value="San Luis">San Luis</option>
+                    <option value="San Roque">San Roque</option>
+                    <option value="Santa Cruz">Santa Cruz</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Kumpletong Tirahan (Address)</label>
+                  <textarea class="form-control" id="address" rows="2" required placeholder="House No., Street, Sitio/Subdivision"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitBtn">
+                  <span id="btnText">I-submit at Magrehistro</span>
+                  <span id="btnSpinner" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                </button>
+              </form>
+
+              <!-- RESIBO / KATIBAYAN -->
+              <div id="receiptSection" class="mt-4 d-none">
+                <div class="receipt-box text-center">
+                  <h5 class="text-success fw-bold mb-3">✓ Matagumpay na Naka-Register!</h5>
+                  <hr>
+                  <div class="text-start mb-3">
+                    <p class="mb-1"><strong>Ref Code:</strong> <span id="rRef" class="text-primary fw-bold"></span></p>
+                    <p class="mb-1"><strong>Pangalan:</strong> <span id="rName"></span></p>
+                    <p class="mb-1"><strong>Contact No:</strong> <span id="rContact"></span></p>
+                    <p class="mb-1"><strong>Doktor:</strong> <span id="rSpec" class="badge bg-primary"></span></p>
+                    <p class="mb-1"><strong>Barangay:</strong> <span id="rBrgy"></span></p>
+                    <p class="mb-1"><strong>Petsa/Oras:</strong> <span id="rTime"></span></p>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm w-100" onclick="window.print()">I-print / Save bilang PDF</button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
-
       </div>
 
     </div>
@@ -268,7 +263,10 @@
         <div class="tab-pane fade show active" id="content-records">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="text-primary fw-bold mb-0">Master Patient Database (Full Details)</h5>
-            <button class="btn btn-sm btn-outline-primary" onclick="loadAdminData()">I-refresh Table</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="loadAdminData()">
+              <span id="adminRefreshText">I-refresh Table</span>
+              <span id="adminRefreshSpinner" class="spinner-border spinner-border-sm d-none ms-1"></span>
+            </button>
           </div>
           <div class="table-responsive">
             <table class="table table-striped table-hover align-middle small">
@@ -276,7 +274,7 @@
                 <tr>
                   <th>Ref ID</th>
                   <th>Buong Pangalan</th>
-                  <th>Edad / Birthday</th>
+                  <th>Edad | Birthday</th>
                   <th>Contact No</th>
                   <th>Barangay</th>
                   <th>Kumpletong Tirahan</th>
@@ -334,7 +332,10 @@
             <div class="col-md-6">
               <h6 class="fw-bold text-primary">📢 Public Announcement Control</h6>
               <textarea id="announcementInput" class="form-control form-control-sm mb-2" rows="3"></textarea>
-              <button class="btn btn-warning btn-sm fw-bold w-100" onclick="publishAnnouncement()">Publish Announcement</button>
+              <button class="btn btn-warning btn-sm fw-bold w-100" id="pubAnnBtn" onclick="publishAnnouncement()">
+                <span id="pubAnnText">Publish Announcement</span>
+                <span id="pubAnnSpinner" class="spinner-border spinner-border-sm d-none ms-1"></span>
+              </button>
             </div>
           </div>
         </div>
@@ -379,7 +380,7 @@
     </div>
   </div>
 
-  <!-- EDIT PATIENT MODAL -->
+  <!-- EDIT PATIENT MODAL WITH LOADING SPINNER -->
   <div class="modal fade" id="editPatientModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content p-3">
@@ -442,7 +443,10 @@
                 <option value="Family Medicine">Family Medicine</option>
               </select>
             </div>
-            <button type="submit" class="btn btn-success w-100 btn-sm fw-bold">I-save ang Pagbabago</button>
+            <button type="submit" class="btn btn-success w-100 btn-sm fw-bold" id="editSaveBtn">
+              <span id="editSaveText">I-save ang Pagbabago</span>
+              <span id="editSaveSpinner" class="spinner-border spinner-border-sm d-none ms-1"></span>
+            </button>
           </form>
         </div>
       </div>
@@ -583,7 +587,7 @@
       }
     });
 
-    // SUBMIT PATIENT FORM
+    // SUBMIT PATIENT FORM WITH LOADING SPINNER
     document.getElementById('appointmentForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -675,13 +679,35 @@
       }
     }
 
+    // HELPER: FORMAT DATE TO YYYY-MM-DD
+    function formatCleanDate(rawDate) {
+      if (!rawDate) return 'N/A';
+      try {
+        let d = new Date(rawDate);
+        if (isNaN(d.getTime())) return rawDate;
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        let year = d.getFullYear();
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+        return [year, month, day].join('-');
+      } catch(e) {
+        return rawDate;
+      }
+    }
+
     // RENDER FULL PATIENT DETAILS IN ADMIN TABLE
     function loadAdminData() {
       if(!isAdminLoggedIn) return;
 
+      const refreshBtnText = document.getElementById('adminRefreshText');
+      const refreshSpinner = document.getElementById('adminRefreshSpinner');
+      if (refreshSpinner) refreshSpinner.classList.remove('d-none');
+
       fetch(scriptURL + "?action=getData")
       .then(res => res.json())
       .then(data => {
+        if (refreshSpinner) refreshSpinner.classList.add('d-none');
         currentData = data.registrations || [];
         const tbody = document.getElementById('registrationsTableBody');
         tbody.innerHTML = "";
@@ -694,17 +720,19 @@
           tbody.innerHTML = `<tr><td colspan="9" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
         } else {
           currentData.slice().reverse().forEach(row => {
-            let formattedDate = row.timestamp ? new Date(row.timestamp).toLocaleString() : 'N/A';
+            let formattedRegisteredDate = row.timestamp ? new Date(row.timestamp).toLocaleString() : 'N/A';
+            let cleanBday = formatCleanDate(row.birthday);
+
             tbody.innerHTML += `
               <tr>
                 <td><span class="badge bg-secondary">${row.id || 'N/A'}</span></td>
                 <td><strong>${row.fullName || 'N/A'}</strong></td>
-                <td>${row.age || 'N/A'} yrs <br><small class="text-muted">${row.birthday || ''}</small></td>
+                <td><strong>${row.age || 'N/A'} yrs</strong> | <span class="text-muted">${cleanBday}</span></td>
                 <td>${row.contactNumber || 'N/A'}</td>
                 <td><span class="badge bg-info text-dark">${row.barangay || 'N/A'}</span></td>
                 <td><small>${row.address || 'N/A'}</small></td>
                 <td><span class="badge bg-primary">${row.specialization || 'N/A'}</span></td>
-                <td><small class="text-muted">${formattedDate}</small></td>
+                <td><small class="text-muted">${formattedRegisteredDate}</small></td>
                 <td>
                   <button class="btn btn-sm btn-warning py-0 px-2 my-1" onclick="openEditModal('${row.id}')">Edit</button>
                   <button class="btn btn-sm btn-danger py-0 px-2 my-1" onclick="deletePatient('${row.id}')">Delete</button>
@@ -731,7 +759,10 @@
           `;
         });
       })
-      .catch(err => console.error("Admin Load Error:", err));
+      .catch(err => {
+        if (refreshSpinner) refreshSpinner.classList.add('d-none');
+        console.error("Admin Load Error:", err);
+      });
     }
 
     function updateSlot(day) {
@@ -749,20 +780,32 @@
 
     function publishAnnouncement() {
       const annText = document.getElementById('announcementInput').value;
+      const pubText = document.getElementById('pubAnnText');
+      const pubSpinner = document.getElementById('pubAnnSpinner');
+
       if (!annText.trim()) {
         alert("Maglagay ng text para sa announcement!");
         return;
       }
 
+      pubText.textContent = "Isina-save...";
+      pubSpinner.classList.remove('d-none');
+
       fetch(`${scriptURL}?action=updateAnnouncement&announcement=${encodeURIComponent(annText)}`)
       .then(res => res.json())
       .then(data => {
+        pubText.textContent = "Publish Announcement";
+        pubSpinner.classList.add('d-none');
         if (data.status === "success") {
           alert("Matagumpay na na-publish ang announcement sa Public Dashboard!");
           fetchSlotCountersAndQueue();
         }
       })
-      .catch(err => alert("Error sa pag-publish ng announcement: " + err.message));
+      .catch(err => {
+        pubText.textContent = "Publish Announcement";
+        pubSpinner.classList.add('d-none');
+        alert("Error sa pag-publish ng announcement: " + err.message);
+      });
     }
 
     function copyRemoteLink() {
@@ -779,7 +822,7 @@
       document.getElementById('editId').value = p.id;
       document.getElementById('editFullName').value = p.fullName;
       document.getElementById('editAge').value = p.age;
-      document.getElementById('editBirthday').value = p.birthday;
+      document.getElementById('editBirthday').value = formatCleanDate(p.birthday);
       document.getElementById('editContactNumber').value = p.contactNumber || '';
       document.getElementById('editBarangay').value = p.barangay;
       document.getElementById('editAddress').value = p.address;
@@ -790,6 +833,12 @@
 
     document.getElementById('editPatientForm').addEventListener('submit', function(e) {
       e.preventDefault();
+
+      const saveText = document.getElementById('editSaveText');
+      const saveSpinner = document.getElementById('editSaveSpinner');
+      saveText.textContent = "Isina-save...";
+      saveSpinner.classList.remove('d-none');
+
       const payload = {
         action: "updatePatient",
         id: document.getElementById('editId').value,
@@ -797,18 +846,25 @@
         age: document.getElementById('editAge').value,
         birthday: document.getElementById('editBirthday').value,
         contactNumber: document.getElementById('editContactNumber').value,
-        barangay: document.getElementById('barangay').value,
-        address: document.getElementById('address').value,
+        barangay: document.getElementById('editBarangay').value,
+        address: document.getElementById('editAddress').value,
         specialization: document.getElementById('editSpecialization').value
       };
 
       fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
       .then(res => res.json())
       .then(data => {
+        saveText.textContent = "I-save ang Pagbabago";
+        saveSpinner.classList.add('d-none');
         alert(data.message);
         bootstrap.Modal.getInstance(document.getElementById('editPatientModal')).hide();
         loadAdminData();
         fetchSlotCountersAndQueue();
+      })
+      .catch(err => {
+        saveText.textContent = "I-save ang Pagbabago";
+        saveSpinner.classList.add('d-none');
+        alert("Error sa pag-update: " + err.message);
       });
     });
 

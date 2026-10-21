@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Consultation Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+    .header-banner { background: linear-gradient(135deg, #0d6efd, #004085); color: white; padding: 1.5rem 1rem; border-radius: 0 0 1rem 1rem; margin-bottom: 1.5rem; position: relative; }
+    .header-clock { position: absolute; top: 1rem; right: 1.5rem; text-align: right; font-size: 0.85rem; background: rgba(255, 255, 255, 0.15); padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(5px); }
+    .card { border: none; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
+    .qr-card { border-top: 4px solid #0d6efd; }
+    .qr-container { display: flex; justify-content: center; align-items: center; min-height: 150px; margin: 1rem 0; padding: 10px; background: #fff; border-radius: 8px; }
+    .receipt-box { border: 2px dashed #0d6efd; padding: 1.5rem; border-radius: 0.75rem; background: #fff; }
+    .slot-card { border-left: 5px solid #0d6efd; background: #fff; }
+    .marquee-container { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; padding: 8px 12px; font-weight: bold; overflow: hidden; }
+    footer { margin-top: auto; background-color: #ffffff; text-align: center; padding: 1rem; border-top: 1px solid #e9ecef; font-size: 0.85rem; color: #6c757d; font-weight: 500; }
+    @media (max-width: 576px) {
+      .header-clock { position: static; margin-top: 10px; text-align: center; display: inline-block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER BANNER WITH REAL-TIME CLOCK -->
+  <div class="header-banner text-center">
+    <div class="header-clock shadow-sm">
+      <div id="liveDay" class="fw-bold">--</div>
+      <div id="liveDate">--</div>
+      <div id="liveTime" class="fw-bold text-warning">--</div>
+    </div>
+    <h3 id="appHeaderTitle">Doctor Consultation Portal</h3>
+    <p id="appHeaderSub" class="mb-0 small fw-bold">QR Code Registration</p>
+  </div>
+
+  <div class="container pb-5">
+
+    <!-- PUBLIC ONLY: NAVIGATION PILLS -->
+    <div id="publicNavSection">
+      <ul class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active" id="pills-qr-tab" data-bs-toggle="pill" data-bs-target="#pills-qr" type="button">
+            1. Doctor QR Codes
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="pills-form-tab" data-bs-toggle="pill" data-bs-target="#pills-form" type="button">
+            2. Patient Form
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link" id="pills-admin-tab" type="button" onclick="openAdminLogin()">
+            🔒 Admin Dashboard
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- PUBLIC ONLY: ANNOUNCEMENT & COUNTER -->
+    <div id="publicHeaderSection">
+      <div class="marquee-container mb-3 shadow-sm">
+        <marquee id="publicMarquee" behavior="scroll" direction="left" scrollamount="6">
+          Loading announcements...
+        </marquee>
+      </div>
+
+      <div class="card p-3 mb-4 slot-card">
+        <div class="row text-center align-items-center">
+          <div class="col-md-3 mb-2 mb-md-0">
+            <small class="text-muted text-uppercase fw-bold">Araw Ngayon</small>
+            <h5 id="statDay" class="text-primary fw-bold mb-0">--</h5>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0">
+            <small class="text-muted text-uppercase fw-bold">Daily Limit</small>
+            <h4 id="statLimit" class="fw-bold mb-0">0</h4>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0">
+            <small class="text-muted text-uppercase fw-bold">Naka-Register</small>
+            <h4 id="statRegistered" class="text-warning fw-bold mb-0">0</h4>
+          </div>
+          <div class="col-md-3">
+            <small class="text-muted text-uppercase fw-bold">Open Slots</small>
+            <h4 id="statOpen" class="text-success fw-bold mb-0">0</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PUBLIC CONTENT WRAPPER -->
+    <div id="publicContentSection">
+      <div class="tab-content" id="pills-tabContent">
+
+        <!-- TAB 1: DOCTOR QR CODES -->
+        <div class="tab-pane fade show active" id="pills-qr">
+          <div class="alert alert-info text-center mb-4">
+            <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lalabas agad ang iyong Patient Form.
+          </div>
+          <div class="row text-center">
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card">
+                <h5 class="text-primary fw-bold">Pediatrics</h5>
+                <div class="qr-container" id="qr-Pediatrics"></div>
+                <small class="text-secondary fw-bold">Scan for Pediatrics</small>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card">
+                <h5 class="text-primary fw-bold">Internal Medicine</h5>
+                <div class="qr-container" id="qr-InternalMedicine"></div>
+                <small class="text-secondary fw-bold">Scan for Internal Med</small>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card">
+                <h5 class="text-primary fw-bold">General Physician</h5>
+                <div class="qr-container" id="qr-GeneralPhysician"></div>
+                <small class="text-secondary fw-bold">Scan for General Phys</small>
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card">
+                <h5 class="text-primary fw-bold">Family Medicine</h5>
+                <div class="qr-container" id="qr-FamilyMedicine"></div>
+                <small class="text-secondary fw-bold">Scan for Family Med</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: PATIENT FORM -->
+        <div class="tab-pane fade" id="pills-form">
+          <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+              <div class="card p-4">
+                
+                <div id="selectedDoctorNotice" class="alert alert-primary text-center fw-bold mb-3 d-none">
+                  ✓ Konsultasyon kay: <span id="docNoticeName" class="text-uppercase text-decoration-underline"></span>
+                </div>
+
+                <h4 class="mb-3 text-primary text-center">Patient Information Form</h4>
+
+                <form id="appointmentForm">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Doktor / Espesyalisasyon</label>
+                    <select class="form-select" id="specialization" required>
+                      <option value="">-- Pumili ng Doktor --</option>
+                      <option value="Pediatrics">Pediatrics (Pambata)</option>
+                      <option value="Internal Medicine">Internal Medicine</option>
+                      <option value="General Physician">General Physician</option>
+                      <option value="Family Medicine">Family Medicine</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Buong Pangalan (Full Name)</label>
+                    <input type="text" class="form-control" id="fullName" required placeholder="Dela Cruz, Juan A.">
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Edad (Age)</label>
+                      <input type="number" class="form-control" id="age" required min="0" max="120">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Kaarawan (Birthday)</label>
+                      <input type="date" class="form-control" id="birthday" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Contact Number (Mobile No.)</label>
+                    <input type="tel" class="form-control" id="contactNumber" required placeholder="09123456789" pattern="09[0-9]{9}">
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Barangay sa Antipolo</label>
+                    <select class="form-select" id="barangay" required>
+                      <option value="">-- Pumili ng Barangay --</option>
+                      <option value="Bagong Nayon">Bagong Nayon</option>
+                      <option value="Beverly Hills">Beverly Hills</option>
+                      <option value="Calawis">Calawis</option>
+                      <option value="Cupang">Cupang</option>
+                      <option value="Dalig">Dalig</option>
+                      <option value="Dela Paz">Dela Paz</option>
+                      <option value="Inarawan">Inarawan</option>
+                      <option value="Mambugan">Mambugan</option>
+                      <option value="Mayamot">Mayamot</option>
+                      <option value="Muntindilaw">Muntindilaw</option>
+                      <option value="San Isidro">San Isidro</option>
+                      <option value="San Jose">San Jose</option>
+                      <option value="San Juan">San Juan</option>
+                      <option value="San Luis">San Luis</option>
+                      <option value="San Roque">San Roque</option>
+                      <option value="Santa Cruz">Santa Cruz</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Kumpletong Tirahan (Address)</label>
+                    <textarea class="form-control" id="address" rows="2" required placeholder="House No., Street, Sitio/Subdivision"></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitBtn">
+                    <span id="btnText">I-submit at Magrehistro</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                  </button>
+                </form>
+
+                <!-- RESIBO / KATIBAYAN -->
+                <div id="receiptSection" class="mt-4 d-none">
+                  <div class="receipt-box text-center">
+                    <h5 class="text-success fw-bold">✓ Matagumpay na Naka-Register!</h5>
+                    <p class="text-muted small mb-3">Ipakita ang resibong ito sa City Health Office Desk.</p>
+                    <hr>
+                    <div class="text-start mb-3">
+                      <p class="mb-1"><strong>Ref Code:</strong> <span id="rRef" class="text-primary fw-bold"></span></p>
+                      <p class="mb-1"><strong>Pangalan:</strong> <span id="rName"></span></p>
+                      <p class="mb-1"><strong>Contact No:</strong> <span id="rContact"></span></p>
+                      <p class="mb-1"><strong>Doktor:</strong> <span id="rSpec" class="badge bg-primary"></span></p>
+                      <p class="mb-1"><strong>Barangay:</strong> <span id="rBrgy"></span></p>
+                      <p class="mb-1"><strong>Petsa/Oras:</strong> <span id="rTime"></span></p>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="window.print()">I-print / Save bilang PDF</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ADMIN EXCLUSIVE VIEW SECTION -->
+    <div id="adminExclusiveSection" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-white rounded shadow-sm border">
+        <span class="fw-bold text-success">🟢 Admin Active Session <small class="text-muted">(Auto-syncing every 10s)</small></span>
+        <button class="btn btn-danger btn-sm fw-bold px-3" onclick="logoutAdmin()">🚪 Logout Admin</button>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-4 mb-4">
+          <!-- PUBLISH ANNOUNCEMENT CARD -->
+          <div class="card p-3 mb-3 border-warning">
+            <h6 class="text-dark fw-bold mb-2">📢 Public Announcement Control</h6>
+            <p class="text-muted small mb-2">Ang ilalagay dito ay lalabas sa umiikot na text sa Public Dashboard.</p>
+            <textarea id="announcementInput" class="form-control form-control-sm mb-2" rows="3" placeholder="Isulat ang patalastas dito..."></textarea>
+            <button class="btn btn-warning btn-sm fw-bold w-100" onclick="publishAnnouncement()">Publish Announcement</button>
+          </div>
+
+          <!-- DAILY LIMITS CARD -->
+          <div class="card p-4">
+            <h5 class="text-primary mb-3 fw-bold">Daily Limits (Mon-Fri)</h5>
+            <p class="text-muted small">I-edit ang limit ng pasyente kada araw at i-click ang Save Limit button.</p>
+            <div id="settingsFormContainer">
+              <div class="text-center">Loading settings...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PATIENT RECORDS TABLE MANAGEMENT -->
+        <div class="col-lg-8">
+          <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="text-primary mb-0 fw-bold">Patient Records Management</h5>
+              <button class="btn btn-sm btn-outline-primary" onclick="loadAdminData()">I-refresh Table</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover small">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Pangalan</th>
+                    <th>Contact No</th>
+                    <th>Barangay</th>
+                    <th>Doktor</th>
+                    <th>Aksyon</th>
+                  </tr>
+                </thead>
+                <tbody id="registrationsTableBody">
+                  <tr><td colspan="5" class="text-center">Nag-a-load ng records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER SECTION -->
+  <footer>
+    © 2026 • Developed & Maintained by Erwin R. Alincastre.
+  </footer>
+
+  <!-- ADMIN LOGIN SECURITY MODAL -->
+  <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-primary">🔒 Admin Security Access</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="adminLoginForm">
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Username</label>
+              <input type="text" class="form-control" id="adminUser" required placeholder="admin">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small">Password</label>
+              <input type="password" class="form-control" id="adminPass" required placeholder="cho">
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold">Login sa Dashboard</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT PATIENT MODAL -->
+  <div class="modal fade" id="editPatientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-primary">Edit Patient Record</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPatientForm">
+            <input type="hidden" id="editId">
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Full Name</label>
+              <input type="text" class="form-control form-control-sm" id="editFullName" required>
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small fw-bold">Age</label>
+                <input type="number" class="form-control form-control-sm" id="editAge" required>
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small fw-bold">Birthday</label>
+                <input type="date" class="form-control form-control-sm" id="editBirthday" required>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Contact Number</label>
+              <input type="tel" class="form-control form-control-sm" id="editContactNumber" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Barangay</label>
+              <select class="form-select form-select-sm" id="editBarangay" required>
+                <option value="Bagong Nayon">Bagong Nayon</option>
+                <option value="Beverly Hills">Beverly Hills</option>
+                <option value="Calawis">Calawis</option>
+                <option value="Cupang">Cupang</option>
+                <option value="Dalig">Dalig</option>
+                <option value="Dela Paz">Dela Paz</option>
+                <option value="Inarawan">Inarawan</option>
+                <option value="Mambugan">Mambugan</option>
+                <option value="Mayamot">Mayamot</option>
+                <option value="Muntindilaw">Muntindilaw</option>
+                <option value="San Isidro">San Isidro</option>
+                <option value="San Jose">San Jose</option>
+                <option value="San Juan">San Juan</option>
+                <option value="San Luis">San Luis</option>
+                <option value="San Roque">San Roque</option>
+                <option value="Santa Cruz">Santa Cruz</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Address</label>
+              <input type="text" class="form-control form-control-sm" id="editAddress" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Doktor / Espesyalisasyon</label>
+              <select class="form-select form-select-sm" id="editSpecialization" required>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Internal Medicine">Internal Medicine</option>
+                <option value="General Physician">General Physician</option>
+                <option value="Family Medicine">Family Medicine</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100 btn-sm fw-bold">I-save ang Pagbabago</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwOcAxhtlveEq9pUBUkVmXT78uj71RmUUAcU453y_ymDLBB48rLwJrfYO_RrPejviLKHw/exec";
+    let isAdminLoggedIn = localStorage.getItem("cho_admin_logged_in") === "true";
+    let currentData = [];
+    let autoRefreshTimer = null;
+
+    const doctors = [
+      { id: "Pediatrics", name: "Pediatrics" },
+      { id: "InternalMedicine", name: "Internal Medicine" },
+      { id: "GeneralPhysician", name: "General Physician" },
+      { id: "FamilyMedicine", name: "Family Medicine" }
+    ];
+
+    // LIVE CLOCK FUNCTION
+    function updateLiveClock() {
+      const now = new Date();
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      document.getElementById('liveDay').textContent = days[now.getDay()];
+      document.getElementById('liveDate').textContent = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+      
+      let hours = now.getHours();
+      let minutes = now.getMinutes();
+      let seconds = now.getSeconds();
+      let ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+      
+      document.getElementById('liveTime').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+    }
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
+    function renderQRCodes() {
+      const cleanBaseUrl = window.location.origin + window.location.pathname;
+      doctors.forEach(doc => {
+        let container = document.getElementById("qr-" + doc.id);
+        if(container) {
+          container.innerHTML = "";
+          let targetUrl = cleanBaseUrl + "?doc=" + encodeURIComponent(doc.name);
+          new QRCode(container, { text: targetUrl, width: 130, height: 130 });
+        }
+      });
+    }
+
+    function showPublicUI() {
+      document.getElementById('publicNavSection').classList.remove('d-none');
+      document.getElementById('publicHeaderSection').classList.remove('d-none');
+      document.getElementById('publicContentSection').classList.remove('d-none');
+      document.getElementById('adminExclusiveSection').classList.add('d-none');
+      document.getElementById('appHeaderSub').textContent = "QR Code Registration";
+    }
+
+    function showAdminUI() {
+      document.getElementById('publicNavSection').classList.add('d-none');
+      document.getElementById('publicHeaderSection').classList.add('d-none');
+      document.getElementById('publicContentSection').classList.add('d-none');
+      document.getElementById('adminExclusiveSection').classList.remove('d-none');
+      document.getElementById('appHeaderSub').textContent = "Admin Management & Patient Database";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderQRCodes();
+      fetchSlotCounters();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const docParam = urlParams.get('doc');
+      
+      if(isAdminLoggedIn) {
+        showAdminUI();
+        loadAdminData();
+        startAutoRefresh();
+      } else {
+        showPublicUI();
+        if(docParam) {
+          const select = document.getElementById('specialization');
+          select.value = docParam;
+          select.style.pointerEvents = "none";
+          
+          document.getElementById('selectedDoctorNotice').classList.remove('d-none');
+          document.getElementById('docNoticeName').textContent = docParam;
+
+          var formTabEl = document.getElementById('pills-form-tab');
+          var formTab = new bootstrap.Tab(formTabEl);
+          formTab.show();
+        }
+      }
+    });
+
+    function fetchSlotCounters() {
+      fetch(scriptURL + "?action=getSlots")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('statDay').textContent = data.todayName || '--';
+        document.getElementById('statLimit').textContent = data.maxSlotToday || 0;
+        document.getElementById('statRegistered').textContent = data.todayRegistered || 0;
+        document.getElementById('statOpen').textContent = data.openSlots || 0;
+        
+        if (data.announcement) {
+          document.getElementById('publicMarquee').textContent = data.announcement;
+          if (document.getElementById('announcementInput') && !document.getElementById('announcementInput').value) {
+            document.getElementById('announcementInput').value = data.announcement;
+          }
+        }
+      })
+      .catch(err => console.error("Error slots:", err));
+    }
+
+    function publishAnnouncement() {
+      const annText = document.getElementById('announcementInput').value;
+      if (!annText.trim()) {
+        alert("Maglagay ng text para sa announcement!");
+        return;
+      }
+
+      fetch(`${scriptURL}?action=updateAnnouncement&announcement=${encodeURIComponent(annText)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("Matagumpay na na-publish ang announcement sa Public Dashboard!");
+          fetchSlotCounters();
+        }
+      })
+      .catch(err => alert("Error sa pag-publish ng announcement: " + err.message));
+    }
+
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      
+      btn.disabled = true;
+      btnText.textContent = "Isina-save sa Database...";
+      btnSpinner.classList.remove('d-none');
+
+      const formData = {
+        specialization: document.getElementById('specialization').value,
+        fullName: document.getElementById('fullName').value,
+        age: document.getElementById('age').value,
+        birthday: document.getElementById('birthday').value,
+        contactNumber: document.getElementById('contactNumber').value,
+        barangay: document.getElementById('barangay').value,
+        address: document.getElementById('address').value
+      };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        btn.disabled = false;
+        btnText.textContent = "I-submit at Magrehistro";
+        btnSpinner.classList.add('d-none');
+
+        if(data.status === "success") {
+          document.getElementById('appointmentForm').reset();
+          document.getElementById('rRef').textContent = data.referenceNo;
+          document.getElementById('rName').textContent = formData.fullName;
+          document.getElementById('rContact').textContent = formData.contactNumber;
+          document.getElementById('rSpec').textContent = formData.specialization;
+          document.getElementById('rBrgy').textContent = formData.barangay;
+          document.getElementById('rTime').textContent = data.timestamp;
+          document.getElementById('receiptSection').classList.remove('d-none');
+          fetchSlotCounters();
+        } else {
+          alert("PABATID: " + data.message);
+        }
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btnText.textContent = "I-submit at Magrehistro";
+        btnSpinner.classList.add('d-none');
+        alert("Error sa koneksyon: " + error.message);
+      });
+    });
+
+    function openAdminLogin() {
+      if(isAdminLoggedIn) {
+        showAdminUI();
+        loadAdminData();
+        startAutoRefresh();
+      } else {
+        var loginModal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
+        loginModal.show();
+      }
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const u = document.getElementById('adminUser').value;
+      const p = document.getElementById('adminPass').value;
+
+      if(u === "admin" && p === "cho") {
+        isAdminLoggedIn = true;
+        localStorage.setItem("cho_admin_logged_in", "true");
+        
+        const modalEl = document.getElementById('adminLoginModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if(modalInstance) modalInstance.hide();
+
+        showAdminUI();
+        loadAdminData();
+        startAutoRefresh();
+      } else {
+        alert("Maling Username o Password!");
+      }
+    });
+
+    function logoutAdmin() {
+      if(confirm("Sigurado ka bang gusto mong mag-logout?")) {
+        isAdminLoggedIn = false;
+        localStorage.removeItem("cho_admin_logged_in");
+        if(autoRefreshTimer) clearInterval(autoRefreshTimer);
+        
+        showPublicUI();
+
+        var qrTabEl = document.getElementById('pills-qr-tab');
+        var qrTab = new bootstrap.Tab(qrTabEl);
+        qrTab.show();
+      }
+    }
+
+    function startAutoRefresh() {
+      if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+      autoRefreshTimer = setInterval(() => {
+        if (isAdminLoggedIn) {
+          loadAdminData(true);
+          fetchSlotCounters();
+        }
+      }, 10000);
+    }
+
+    function loadAdminData(silent = false) {
+      if(!isAdminLoggedIn) return;
+
+      fetch(scriptURL + "?action=getData")
+      .then(res => res.json())
+      .then(data => {
+        currentData = data.registrations || [];
+        const tbody = document.getElementById('registrationsTableBody');
+        tbody.innerHTML = "";
+
+        if(currentData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
+        } else {
+          currentData.slice().reverse().forEach(row => {
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${row.fullName || 'N/A'}</strong></td>
+                <td>${row.contactNumber || ''}</td>
+                <td>${row.barangay || ''}</td>
+                <td><span class="badge bg-primary">${row.specialization || ''}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-warning py-0 px-2" onclick="openEditModal('${row.id}')">Edit</button>
+                  <button class="btn btn-sm btn-danger py-0 px-2" onclick="deletePatient('${row.id}')">Delete</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        if (!silent) {
+          const settingsContainer = document.getElementById('settingsFormContainer');
+          settingsContainer.innerHTML = "";
+          const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+          
+          daysOrder.forEach(day => {
+            const val = data.settings[day] !== undefined ? data.settings[day] : 300;
+            settingsContainer.innerHTML += `
+              <div class="mb-3">
+                <label class="form-label fw-bold mb-1">${day}</label>
+                <div class="input-group input-group-sm">
+                  <input type="number" class="form-control" id="slot_${day}" value="${val}">
+                  <button class="btn btn-outline-primary" type="button" onclick="updateSlot('${day}')">Save Limit</button>
+                </div>
+              </div>
+            `;
+          });
+        }
+      })
+      .catch(err => console.error("Admin Load Error:", err));
+    }
+
+    function updateSlot(day) {
+      const slots = document.getElementById(`slot_${day}`).value;
+      fetch(`${scriptURL}?action=updateSettings&day=${day}&slots=${slots}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "success") {
+          alert(`Na-update ang max limit ng ${day} sa ${slots}!`);
+          loadAdminData();
+          fetchSlotCounters();
+        }
+      });
+    }
+
+    function openEditModal(id) {
+      const p = currentData.find(item => item.id.toString() === id.toString());
+      if(!p) return;
+
+      document.getElementById('editId').value = p.id;
+      document.getElementById('editFullName').value = p.fullName;
+      document.getElementById('editAge').value = p.age;
+      document.getElementById('editBirthday').value = p.birthday;
+      document.getElementById('editContactNumber').value = p.contactNumber || '';
+      document.getElementById('editBarangay').value = p.barangay;
+      document.getElementById('editAddress').value = p.address;
+      document.getElementById('editSpecialization').value = p.specialization;
+
+      new bootstrap.Modal(document.getElementById('editPatientModal')).show();
+    }
+
+    document.getElementById('editPatientForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const payload = {
+        action: "updatePatient",
+        id: document.getElementById('editId').value,
+        fullName: document.getElementById('editFullName').value,
+        age: document.getElementById('editAge').value,
+        birthday: document.getElementById('editBirthday').value,
+        contactNumber: document.getElementById('editContactNumber').value,
+        barangay: document.getElementById('editBarangay').value,
+        address: document.getElementById('editAddress').value,
+        specialization: document.getElementById('editSpecialization').value
+      };
+
+      fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        bootstrap.Modal.getInstance(document.getElementById('editPatientModal')).hide();
+        loadAdminData();
+        fetchSlotCounters();
+      });
+    });
+
+    function deletePatient(id) {
+      if(confirm("Sigurado ka bang gusto mong burahin ang record na ito?")) {
+        fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: "deletePatient", id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          loadAdminData();
+          fetchSlotCounters();
+        });
+      }
+    }
+  </script>
+</body>
+</html>

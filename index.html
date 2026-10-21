@@ -28,14 +28,13 @@
 </head>
 <body>
 
-  <!-- HEADER BANNER WITH REAL-TIME CLOCK -->
   <div class="header-banner text-center">
     <div class="header-clock shadow-sm">
       <div id="liveDay" class="fw-bold">--</div>
       <div id="liveDate">--</div>
       <div id="liveTime" class="fw-bold text-warning">--</div>
     </div>
-    <h2 id="appHeaderTitle">Doctor Consultation</h2>
+    <h3 id="appHeaderTitle">Out Patient Department</h3>
     <p id="appHeaderSub" class="mb-0 small fw-bold">QR Code Registration & OPD Queue System</p>
   </div>
 
@@ -44,14 +43,12 @@
     <!-- PUBLIC VIEW SECTION -->
     <div id="publicHeaderSection">
 
-      <!-- PUBLIC ANNOUNCEMENT MARQUEE TEXT -->
       <div class="marquee-container mb-3 shadow-sm">
         <marquee id="publicMarquee" behavior="scroll" direction="left" scrollamount="6">
           PAHALAGANG PABATID: Magdala ng valid ID at sumunod sa nakatakdang oras ng appointment. Maraming Salamat!
         </marquee>
       </div>
 
-      <!-- PUBLIC LIVE SLOT COUNTER -->
       <div class="card p-3 mb-4 slot-card">
         <div class="row text-center align-items-center">
           <div class="col-6 col-md-3 mb-2 mb-md-0">
@@ -73,7 +70,6 @@
         </div>
       </div>
 
-      <!-- MAIN PUBLIC CONTENT (DOCTOR QR DISPLAY) -->
       <div id="section-qr" class="mb-5">
         <div class="alert alert-info text-center mb-4 shadow-sm">
           <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lumabas agad ang iyong Patient Form.
@@ -93,7 +89,7 @@
             </div>
           </div>
 
-          <div class="col-6 col-md-3 mb-4">
+          <div class="col-md-6 col-lg-3 mb-4">
             <div class="card p-3 qr-card h-100">
               <h5 class="text-primary fw-bold mb-1">Internal Medicine</h5>
               <small class="text-muted">Adult Care</small>
@@ -135,7 +131,7 @@
         </div>
       </div>
 
-      <!-- PATIENT INFORMATION FORM SECTION (NAKA-HIDE BY DEFAULT, LALABAS LANG KAPAG MAY QR SCAN) -->
+      <!-- PATIENT FORM (NAKA-HIDE BY DEFAULT, LALABAS LANG KAPAG MAY QR SCAN) -->
       <div id="section-form" class="mt-4 d-none">
         <div class="row justify-content-center">
           <div class="col-md-8 col-lg-6">
@@ -214,7 +210,6 @@
                 </button>
               </form>
 
-              <!-- RESIBO / KATIBAYAN -->
               <div id="receiptSection" class="mt-4 d-none">
                 <div class="receipt-box text-center">
                   <h5 class="text-success fw-bold mb-3">✓ Matagumpay na Naka-Register!</h5>
@@ -259,7 +254,6 @@
 
       <div class="tab-content bg-white p-4 rounded shadow-sm">
         
-        <!-- CONTENT 1: COMPLETE PATIENT RECORDS TABLE -->
         <div class="tab-pane fade show active" id="content-records">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="text-primary fw-bold mb-0">Master Patient Database (Full Details)</h5>
@@ -290,7 +284,6 @@
           </div>
         </div>
 
-        <!-- CONTENT 2: REPORTS & ANALYTICS -->
         <div class="tab-pane fade" id="content-reports">
           <h5 class="text-primary fw-bold mb-3">Check-up Accomplishment Summary</h5>
           <div class="row text-center g-3 mb-4">
@@ -315,7 +308,6 @@
           </div>
         </div>
 
-        <!-- CONTENT 3: SETTINGS -->
         <div class="tab-pane fade" id="content-settings">
           <div class="row">
             <div class="col-md-6 mb-4">
@@ -345,17 +337,14 @@
 
   </div>
 
-  <!-- SETTINGS ICON BUTTON FOR ADMIN ACCESS -->
   <button class="btn btn-dark btn-sm rounded-circle admin-btn" onclick="openAdminLogin()" title="Admin Settings">
     <i class="bi bi-gear-fill"></i>
   </button>
 
-  <!-- FOOTER SECTION -->
   <footer>
     © 2026 • Developed & Maintained by Erwin R. Alincastre.
   </footer>
 
-  <!-- ADMIN LOGIN MODAL -->
   <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content p-3">
@@ -380,7 +369,6 @@
     </div>
   </div>
 
-  <!-- EDIT PATIENT MODAL WITH LOADING SPINNER -->
   <div class="modal fade" id="editPatientModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content p-3">
@@ -459,6 +447,7 @@
     let isAdminLoggedIn = localStorage.getItem("cho_admin_logged_in") === "true";
     let currentData = [];
     let lastQueueState = {};
+    let lastTriggerState = {};
 
     const doctors = [
       { id: "Pediatrics", name: "Pediatrics" },
@@ -529,15 +518,24 @@
 
         doctors.forEach(doc => {
           let numKey = "CurrentQueue_" + doc.id;
+          let trigKey = "LastCallTrigger_" + doc.id;
           let newNum = data.settings[numKey] || 0;
+          let newTrig = data.settings[trigKey] || 0;
           let el = document.getElementById("num-" + doc.id);
+          
           if (el) {
             let padded = String(newNum).padStart(3, '0');
-            if (el.textContent !== padded && lastQueueState[doc.id] !== undefined && lastQueueState[doc.id] !== newNum) {
+            el.textContent = padded;
+
+            let numChanged = (lastQueueState[doc.id] !== undefined && lastQueueState[doc.id] !== newNum);
+            let trigChanged = (lastTriggerState[doc.id] !== undefined && lastTriggerState[doc.id] !== newTrig);
+
+            if (numChanged || trigChanged) {
               speakQueueNumber(doc.name, newNum);
             }
-            el.textContent = padded;
+
             lastQueueState[doc.id] = newNum;
+            lastTriggerState[doc.id] = newTrig;
           }
         });
       })
@@ -573,7 +571,6 @@
       } else {
         showPublicUI();
         if(docParam) {
-          // Ipakita ang Patient Form kapag may QR Code scan galing sa doktor
           document.getElementById('section-form').classList.remove('d-none');
           const select = document.getElementById('specialization');
           select.value = docParam;
@@ -581,7 +578,6 @@
           
           document.getElementById('selectedDoctorNotice').classList.remove('d-none');
           document.getElementById('docNoticeName').textContent = docParam;
-
           document.getElementById('section-form').scrollIntoView({ behavior: 'smooth' });
         }
       }
@@ -589,7 +585,6 @@
 
     document.getElementById('appointmentForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      
       const btn = document.getElementById('submitBtn');
       const btnText = document.getElementById('btnText');
       const btnSpinner = document.getElementById('btnSpinner');
@@ -608,10 +603,7 @@
         address: document.getElementById('address').value
       };
 
-      fetch(scriptURL, {
-        method: 'POST',
-        body: JSON.stringify(formData)
-      })
+      fetch(scriptURL, { method: 'POST', body: JSON.stringify(formData) })
       .then(response => response.json())
       .then(data => {
         btn.disabled = false;
@@ -641,13 +633,8 @@
     });
 
     function openAdminLogin() {
-      if(isAdminLoggedIn) {
-        showAdminUI();
-        loadAdminData();
-      } else {
-        var loginModal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
-        loginModal.show();
-      }
+      if(isAdminLoggedIn) { showAdminUI(); loadAdminData(); }
+      else { new bootstrap.Modal(document.getElementById('adminLoginModal')).show(); }
     }
 
     document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
@@ -658,11 +645,9 @@
       if(u === "admin" && p === "cho") {
         isAdminLoggedIn = true;
         localStorage.setItem("cho_admin_logged_in", "true");
-        
-        const modalEl = document.getElementById('adminLoginModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        var modalEl = document.getElementById('adminLoginModal');
+        var modalInstance = bootstrap.Modal.getInstance(modalEl);
         if(modalInstance) modalInstance.hide();
-
         showAdminUI();
         loadAdminData();
       } else {
@@ -678,18 +663,23 @@
       }
     }
 
+    // Tumpak na date cleaner para maiwasan ang timezone shift (1986-05-11)
     function formatCleanDate(rawDate) {
       if (!rawDate) return 'N/A';
       try {
         let str = rawDate.toString().trim();
         if (str.includes('T')) {
-          str = str.split('T')[0];
+          return str.split('T')[0];
+        }
+        let parts = str.split(' ');
+        if (parts.length > 0 && parts[0].match(/^\d{4}-\d{2}-\d{2}$/)) {
+          return parts[0];
         }
         let d = new Date(str);
         if (isNaN(d.getTime())) return str;
-        let month = '' + (d.getMonth() + 1);
-        let day = '' + d.getDate();
-        let year = d.getFullYear();
+        let year = d.getUTCFullYear();
+        let month = '' + (d.getUTCMonth() + 1);
+        let day = '' + d.getUTCDate();
         if (month.length < 2) month = '0' + month;
         if (day.length < 2) day = '0' + day;
         return [year, month, day].join('-');
@@ -783,10 +773,7 @@
       const pubText = document.getElementById('pubAnnText');
       const pubSpinner = document.getElementById('pubAnnSpinner');
 
-      if (!annText.trim()) {
-        alert("Maglagay ng text para sa announcement!");
-        return;
-      }
+      if (!annText.trim()) { alert("Maglagay ng text para sa announcement!"); return; }
 
       pubText.textContent = "Isina-save...";
       pubSpinner.classList.remove('d-none');
@@ -833,21 +820,16 @@
 
     document.getElementById('editPatientForm').addEventListener('submit', function(e) {
       e.preventDefault();
-
       const saveText = document.getElementById('editSaveText');
       const saveSpinner = document.getElementById('editSaveSpinner');
       saveText.textContent = "Isina-save...";
       saveSpinner.classList.remove('d-none');
 
       const payload = {
-        action: "updatePatient",
-        id: document.getElementById('editId').value,
-        fullName: document.getElementById('editFullName').value,
-        age: document.getElementById('editAge').value,
-        birthday: document.getElementById('editBirthday').value,
-        contactNumber: document.getElementById('editContactNumber').value,
-        barangay: document.getElementById('editBarangay').value,
-        address: document.getElementById('editAddress').value,
+        action: "updatePatient", id: document.getElementById('editId').value,
+        fullName: document.getElementById('editFullName').value, age: document.getElementById('editAge').value,
+        birthday: document.getElementById('editBirthday').value, contactNumber: document.getElementById('editContactNumber').value,
+        barangay: document.getElementById('editBarangay').value, address: document.getElementById('editAddress').value,
         specialization: document.getElementById('editSpecialization').value
       };
 
@@ -870,10 +852,7 @@
 
     function deletePatient(id) {
       if(confirm("Sigurado ka bang gusto mong burahin ang record na ito?")) {
-        fetch(scriptURL, {
-          method: 'POST',
-          body: JSON.stringify({ action: "deletePatient", id: id })
-        })
+        fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "deletePatient", id: id }) })
         .then(res => res.json())
         .then(data => {
           alert(data.message);

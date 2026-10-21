@@ -17,7 +17,7 @@
     .queue-box { background: #0f172a; color: #38bdf8; border-radius: 0.75rem; padding: 0.5rem; font-family: 'Courier New', Courier, monospace; font-size: 2.2rem; font-weight: 900; }
     .receipt-box { border: 2px dashed #0d6efd; padding: 1.5rem; border-radius: 0.75rem; background: #fff; }
     .slot-card { border-left: 5px solid #0d6efd; background: #fff; }
-    .marquee-container { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; padding: 8px 12px; font-weight: bold; overflow: hidden; }
+    .marquee-container { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; padding: 10px 14px; font-weight: bold; overflow: hidden; }
     .admin-btn { position: fixed; bottom: 15px; right: 15px; opacity: 0.4; transition: 0.3s; z-index: 999; }
     .admin-btn:hover { opacity: 1; }
     footer { margin-top: auto; background-color: #ffffff; text-align: center; padding: 1rem; border-top: 1px solid #e9ecef; font-size: 0.85rem; color: #6c757d; font-weight: 500; }
@@ -44,10 +44,10 @@
     <!-- PUBLIC VIEW SECTION -->
     <div id="publicHeaderSection">
 
-      <!-- MARQUEE ANNOUNCEMENT -->
+      <!-- PUBLIC ANNOUNCEMENT MARQUEE TEXT -->
       <div class="marquee-container mb-3 shadow-sm">
         <marquee id="publicMarquee" behavior="scroll" direction="left" scrollamount="6">
-          Loading announcements...
+          PAHALAGANG PABATID: Magdala ng valid ID at sumunod sa nakatakdang oras ng appointment. Maraming Salamat!
         </marquee>
       </div>
 
@@ -73,26 +73,12 @@
         </div>
       </div>
 
-      <!-- PUBLIC NAVIGATION PILLS -->
-      <ul class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
-        <li class="nav-item">
-          <button class="nav-link active fw-bold" id="pills-qr-tab" data-bs-toggle="pill" data-bs-target="#pills-qr" type="button">
-            1. Doctor QR Codes & Queue Display
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link fw-bold" id="pills-form-tab" data-bs-toggle="pill" data-bs-target="#pills-form" type="button">
-            2. Patient Form
-          </button>
-        </li>
-      </ul>
-
-      <!-- TAB CONTENT -->
-      <div class="tab-content" id="pills-tabContent">
-
-        <!-- TAB 1: DOCTOR QR CODES & QUEUE NUMBERS -->
-        <div class="tab-pane fade show active" id="pills-qr">
-          <div class="alert alert-info text-center mb-4">
+      <!-- MAIN PUBLIC CONTENT (QR & QUEUE + PATIENT FORM) -->
+      <div id="publicMainContent">
+        
+        <!-- DOCTOR QR CODES & QUEUE DISPLAY -->
+        <div id="section-qr" class="mb-5">
+          <div class="alert alert-info text-center mb-4 shadow-sm">
             <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lumabas agad ang iyong Patient Form.
           </div>
           <div class="row text-center">
@@ -152,8 +138,8 @@
           </div>
         </div>
 
-        <!-- TAB 2: PATIENT FORM -->
-        <div class="tab-pane fade" id="pills-form">
+        <!-- PATIENT INFORMATION FORM SECTION -->
+        <div id="section-form">
           <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
               <div class="card p-4">
@@ -254,6 +240,7 @@
         </div>
 
       </div>
+
     </div>
 
     <!-- ADMIN EXCLUSIVE VIEW SECTION -->
@@ -265,7 +252,7 @@
 
       <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
         <li class="nav-item">
-          <button class="nav-link active fw-bold" id="tab-records" data-bs-toggle="tab" data-bs-target="#content-records">📋 Patient Records</button>
+          <button class="nav-link active fw-bold" id="tab-records" data-bs-toggle="tab" data-bs-target="#content-records">📋 Complete Patient Records</button>
         </li>
         <li class="nav-item">
           <button class="nav-link fw-bold" id="tab-reports" data-bs-toggle="tab" data-bs-target="#content-reports">📊 Check-up Reports</button>
@@ -277,25 +264,29 @@
 
       <div class="tab-content bg-white p-4 rounded shadow-sm">
         
-        <!-- CONTENT 1: PATIENT RECORDS -->
+        <!-- CONTENT 1: COMPLETE PATIENT RECORDS TABLE -->
         <div class="tab-pane fade show active" id="content-records">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="text-primary fw-bold mb-0">Master Patient Database</h5>
+            <h5 class="text-primary fw-bold mb-0">Master Patient Database (Full Details)</h5>
             <button class="btn btn-sm btn-outline-primary" onclick="loadAdminData()">I-refresh Table</button>
           </div>
           <div class="table-responsive">
-            <table class="table table-striped table-hover small">
-              <thead class="table-dark">
+            <table class="table table-striped table-hover align-middle small">
+              <thead class="table-dark text-nowrap">
                 <tr>
-                  <th>Pangalan</th>
+                  <th>Ref ID</th>
+                  <th>Buong Pangalan</th>
+                  <th>Edad / Birthday</th>
                   <th>Contact No</th>
                   <th>Barangay</th>
+                  <th>Kumpletong Tirahan</th>
                   <th>Doktor</th>
+                  <th>Petsa Naka-rehistro</th>
                   <th>Aksyon</th>
                 </tr>
               </thead>
               <tbody id="registrationsTableBody">
-                <tr><td colspan="5" class="text-center">Nag-a-load ng records...</td></tr>
+                <tr><td colspan="9" class="text-center">Nag-a-load ng records...</td></tr>
               </tbody>
             </table>
           </div>
@@ -586,9 +577,8 @@
           document.getElementById('selectedDoctorNotice').classList.remove('d-none');
           document.getElementById('docNoticeName').textContent = docParam;
 
-          var formTabEl = document.getElementById('pills-form-tab');
-          var formTab = new bootstrap.Tab(formTabEl);
-          formTab.show();
+          // Scroll directly to Patient Form upon scanning QR
+          document.getElementById('section-form').scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
@@ -685,6 +675,7 @@
       }
     }
 
+    // RENDER FULL PATIENT DETAILS IN ADMIN TABLE
     function loadAdminData() {
       if(!isAdminLoggedIn) return;
 
@@ -700,18 +691,23 @@
         document.getElementById('repMonth').textContent = currentData.length;
 
         if(currentData.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="9" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
         } else {
           currentData.slice().reverse().forEach(row => {
+            let formattedDate = row.timestamp ? new Date(row.timestamp).toLocaleString() : 'N/A';
             tbody.innerHTML += `
               <tr>
+                <td><span class="badge bg-secondary">${row.id || 'N/A'}</span></td>
                 <td><strong>${row.fullName || 'N/A'}</strong></td>
-                <td>${row.contactNumber || ''}</td>
-                <td>${row.barangay || ''}</td>
-                <td><span class="badge bg-primary">${row.specialization || ''}</span></td>
+                <td>${row.age || 'N/A'} yrs <br><small class="text-muted">${row.birthday || ''}</small></td>
+                <td>${row.contactNumber || 'N/A'}</td>
+                <td><span class="badge bg-info text-dark">${row.barangay || 'N/A'}</span></td>
+                <td><small>${row.address || 'N/A'}</small></td>
+                <td><span class="badge bg-primary">${row.specialization || 'N/A'}</span></td>
+                <td><small class="text-muted">${formattedDate}</small></td>
                 <td>
-                  <button class="btn btn-sm btn-warning py-0 px-2" onclick="openEditModal('${row.id}')">Edit</button>
-                  <button class="btn btn-sm btn-danger py-0 px-2" onclick="deletePatient('${row.id}')">Delete</button>
+                  <button class="btn btn-sm btn-warning py-0 px-2 my-1" onclick="openEditModal('${row.id}')">Edit</button>
+                  <button class="btn btn-sm btn-danger py-0 px-2 my-1" onclick="deletePatient('${row.id}')">Delete</button>
                 </td>
               </tr>
             `;
@@ -801,8 +797,8 @@
         age: document.getElementById('editAge').value,
         birthday: document.getElementById('editBirthday').value,
         contactNumber: document.getElementById('editContactNumber').value,
-        barangay: document.getElementById('editBarangay').value,
-        address: document.getElementById('editAddress').value,
+        barangay: document.getElementById('barangay').value,
+        address: document.getElementById('address').value,
         specialization: document.getElementById('editSpecialization').value
       };
 

@@ -3,20 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OPD Queue Display System</title>
+  <title>Antipolo CHO - Doctor Consultation & Queue Portal</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
-    .header-banner { background: linear-gradient(135deg, #1e3a8a, #0f172a); color: white; padding: 1.2rem; border-bottom: 3px solid #3b82f6; position: relative; }
-    .header-clock { position: absolute; top: 1rem; right: 1.5rem; text-align: right; font-size: 0.85rem; background: rgba(255, 255, 255, 0.1); padding: 6px 14px; border-radius: 20px; }
-    .queue-card { background: #1e293b; border: 2px solid #334155; border-radius: 1.2rem; transition: all 0.3s ease; }
-    .queue-number { font-size: 4.5rem; font-weight: 900; color: #38bdf8; text-shadow: 0 0 20px rgba(56, 189, 248, 0.4); font-family: 'Courier New', Courier, monospace; }
-    .doctor-title { font-size: 1.4rem; font-weight: 700; color: #f1f5f9; text-transform: uppercase; letter-spacing: 1px; }
-    .marquee-container { background: #1e293b; color: #fbbf24; border: 1px solid #334155; border-radius: 8px; padding: 10px; font-weight: bold; overflow: hidden; }
-    .admin-btn { position: fixed; bottom: 15px; right: 15px; opacity: 0.3; transition: 0.3s; z-index: 999; }
+    body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+    .header-banner { background: linear-gradient(135deg, #0d6efd, #004085); color: white; padding: 1.5rem 1rem; border-radius: 0 0 1rem 1rem; margin-bottom: 1.5rem; position: relative; }
+    .header-clock { position: absolute; top: 1rem; right: 1.5rem; text-align: right; font-size: 0.85rem; background: rgba(255, 255, 255, 0.15); padding: 5px 12px; border-radius: 20px; backdrop-filter: blur(5px); }
+    .card { border: none; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
+    .qr-card { border-top: 4px solid #0d6efd; }
+    .qr-container { display: flex; justify-content: center; align-items: center; min-height: 150px; margin: 0.5rem 0; padding: 10px; background: #fff; border-radius: 8px; }
+    .queue-box { background: #0f172a; color: #38bdf8; border-radius: 0.75rem; padding: 0.5rem; font-family: 'Courier New', Courier, monospace; font-size: 2.2rem; font-weight: 900; }
+    .receipt-box { border: 2px dashed #0d6efd; padding: 1.5rem; border-radius: 0.75rem; background: #fff; }
+    .slot-card { border-left: 5px solid #0d6efd; background: #fff; }
+    .marquee-container { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 8px; padding: 8px 12px; font-weight: bold; overflow: hidden; }
+    .admin-btn { position: fixed; bottom: 15px; right: 15px; opacity: 0.4; transition: 0.3s; z-index: 999; }
     .admin-btn:hover { opacity: 1; }
-    footer { margin-top: auto; background-color: #0f172a; text-align: center; padding: 1rem; border-top: 1px solid #1e293b; font-size: 0.85rem; color: #94a3b8; }
+    footer { margin-top: auto; background-color: #ffffff; text-align: center; padding: 1rem; border-top: 1px solid #e9ecef; font-size: 0.85rem; color: #6c757d; font-weight: 500; }
+    @media (max-width: 576px) {
+      .header-clock { position: static; margin-top: 10px; text-align: center; display: inline-block; }
+    }
   </style>
 </head>
 <body>
@@ -28,82 +35,243 @@
       <div id="liveDate">--</div>
       <div id="liveTime" class="fw-bold text-warning">--</div>
     </div>
-    <h3 id="appHeaderTitle" class="fw-bold text-primary-light">OPD Queue Display System</h3>
-    <p id="appHeaderSub" class="mb-0 small fw-bold text-info">Outpatient Department Queueing System</p>
+    <h3 id="appHeaderTitle">Antipolo City Health Office</h3>
+    <p id="appHeaderSub" class="mb-0 small fw-bold">QR Code Registration & OPD Queue System</p>
   </div>
 
-  <div class="container-fluid px-4 py-3">
+  <div class="container pb-5">
 
     <!-- PUBLIC VIEW SECTION -->
     <div id="publicHeaderSection">
+
       <!-- MARQUEE ANNOUNCEMENT -->
-      <div class="marquee-container mb-4 shadow-sm">
+      <div class="marquee-container mb-3 shadow-sm">
         <marquee id="publicMarquee" behavior="scroll" direction="left" scrollamount="6">
           Loading announcements...
         </marquee>
       </div>
 
-      <!-- QUEUE NUMBERS DISPLAY GRID -->
-      <div class="row g-4 mb-4">
-        <div class="col-md-6 col-lg-3">
-          <div class="card queue-card p-3 text-center shadow-lg">
-            <div class="doctor-title mb-1">Pediatrics</div>
-            <small class="text-muted">Pambata</small>
-            <hr class="border-secondary">
-            <small class="text-uppercase fw-bold text-warning">Now Serving</small>
-            <div class="queue-number" id="num-Pediatrics">000</div>
+      <!-- PUBLIC LIVE SLOT COUNTER -->
+      <div class="card p-3 mb-4 slot-card">
+        <div class="row text-center align-items-center">
+          <div class="col-6 col-md-3 mb-2 mb-md-0">
+            <small class="text-muted text-uppercase fw-bold">Araw Ngayon</small>
+            <h5 id="statDay" class="text-primary fw-bold mb-0">--</h5>
+          </div>
+          <div class="col-6 col-md-3 mb-2 mb-md-0">
+            <small class="text-muted text-uppercase fw-bold">Daily Limit</small>
+            <h4 id="statLimit" class="fw-bold mb-0">0</h4>
+          </div>
+          <div class="col-6 col-md-3">
+            <small class="text-muted text-uppercase fw-bold">Naka-Register</small>
+            <h4 id="statRegistered" class="text-warning fw-bold mb-0">0</h4>
+          </div>
+          <div class="col-6 col-md-3">
+            <small class="text-muted text-uppercase fw-bold">Open Slots</small>
+            <h4 id="statOpen" class="text-success fw-bold mb-0">0</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- PUBLIC NAVIGATION PILLS -->
+      <ul class="nav nav-pills justify-content-center mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item">
+          <button class="nav-link active fw-bold" id="pills-qr-tab" data-bs-toggle="pill" data-bs-target="#pills-qr" type="button">
+            1. Doctor QR Codes & Queue Display
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link fw-bold" id="pills-form-tab" data-bs-toggle="pill" data-bs-target="#pills-form" type="button">
+            2. Patient Form
+          </button>
+        </li>
+      </ul>
+
+      <!-- TAB CONTENT -->
+      <div class="tab-content" id="pills-tabContent">
+
+        <!-- TAB 1: DOCTOR QR CODES & QUEUE NUMBERS -->
+        <div class="tab-pane fade show active" id="pills-qr">
+          <div class="alert alert-info text-center mb-4">
+            <strong>Para sa Pasyente:</strong> I-scan ang QR Code ng doktor na nais mong konsultahin para lumabas agad ang iyong Patient Form.
+          </div>
+          <div class="row text-center">
+            
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card h-100">
+                <h5 class="text-primary fw-bold mb-1">Pediatrics</h5>
+                <small class="text-muted">Pambata</small>
+                <div class="qr-container" id="qr-Pediatrics"></div>
+                <small class="text-secondary fw-bold mb-2">Scan for Pediatrics</small>
+                <div class="mt-auto">
+                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                  <div class="queue-box" id="num-Pediatrics">000</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card h-100">
+                <h5 class="text-primary fw-bold mb-1">Internal Medicine</h5>
+                <small class="text-muted">Adult Care</small>
+                <div class="qr-container" id="qr-InternalMedicine"></div>
+                <small class="text-secondary fw-bold mb-2">Scan for Internal Med</small>
+                <div class="mt-auto">
+                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                  <div class="queue-box" id="num-InternalMedicine">000</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card h-100">
+                <h5 class="text-primary fw-bold mb-1">General Physician</h5>
+                <small class="text-muted">General Health</small>
+                <div class="qr-container" id="qr-GeneralPhysician"></div>
+                <small class="text-secondary fw-bold mb-2">Scan for General Phys</small>
+                <div class="mt-auto">
+                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                  <div class="queue-box" id="num-GeneralPhysician">000</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3 mb-4">
+              <div class="card p-3 qr-card h-100">
+                <h5 class="text-primary fw-bold mb-1">Family Medicine</h5>
+                <small class="text-muted">Family Care</small>
+                <div class="qr-container" id="qr-FamilyMedicine"></div>
+                <small class="text-secondary fw-bold mb-2">Scan for Family Med</small>
+                <div class="mt-auto">
+                  <small class="text-uppercase fw-bold text-danger">Now Serving</small>
+                  <div class="queue-box" id="num-FamilyMedicine">000</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <div class="col-md-6 col-lg-3">
-          <div class="card queue-card p-3 text-center shadow-lg">
-            <div class="doctor-title mb-1">Internal Med</div>
-            <small class="text-muted">Adult Care</small>
-            <hr class="border-secondary">
-            <small class="text-uppercase fw-bold text-warning">Now Serving</small>
-            <div class="queue-number" id="num-InternalMedicine">000</div>
+        <!-- TAB 2: PATIENT FORM -->
+        <div class="tab-pane fade" id="pills-form">
+          <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+              <div class="card p-4">
+                
+                <div id="selectedDoctorNotice" class="alert alert-primary text-center fw-bold mb-3 d-none">
+                  ✓ Konsultasyon kay: <span id="docNoticeName" class="text-uppercase text-decoration-underline"></span>
+                </div>
+
+                <h4 class="mb-3 text-primary text-center">Patient Information Form</h4>
+
+                <form id="appointmentForm">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Doktor / Espesyalisasyon</label>
+                    <select class="form-select" id="specialization" required>
+                      <option value="">-- Pumili ng Doktor --</option>
+                      <option value="Pediatrics">Pediatrics (Pambata)</option>
+                      <option value="Internal Medicine">Internal Medicine</option>
+                      <option value="General Physician">General Physician</option>
+                      <option value="Family Medicine">Family Medicine</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Buong Pangalan (Full Name)</label>
+                    <input type="text" class="form-control" id="fullName" required placeholder="Dela Cruz, Juan A.">
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Edad (Age)</label>
+                      <input type="number" class="form-control" id="age" required min="0" max="120">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label fw-bold">Kaarawan (Birthday)</label>
+                      <input type="date" class="form-control" id="birthday" required>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Contact Number (Mobile No.)</label>
+                    <input type="tel" class="form-control" id="contactNumber" required placeholder="09123456789" pattern="09[0-9]{9}">
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Barangay sa Antipolo</label>
+                    <select class="form-select" id="barangay" required>
+                      <option value="">-- Pumili ng Barangay --</option>
+                      <option value="Bagong Nayon">Bagong Nayon</option>
+                      <option value="Beverly Hills">Beverly Hills</option>
+                      <option value="Calawis">Calawis</option>
+                      <option value="Cupang">Cupang</option>
+                      <option value="Dalig">Dalig</option>
+                      <option value="Dela Paz">Dela Paz</option>
+                      <option value="Inarawan">Inarawan</option>
+                      <option value="Mambugan">Mambugan</option>
+                      <option value="Mayamot">Mayamot</option>
+                      <option value="Muntindilaw">Muntindilaw</option>
+                      <option value="San Isidro">San Isidro</option>
+                      <option value="San Jose">San Jose</option>
+                      <option value="San Juan">San Juan</option>
+                      <option value="San Luis">San Luis</option>
+                      <option value="San Roque">San Roque</option>
+                      <option value="Santa Cruz">Santa Cruz</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Kumpletong Tirahan (Address)</label>
+                    <textarea class="form-control" id="address" rows="2" required placeholder="House No., Street, Sitio/Subdivision"></textarea>
+                  </div>
+
+                  <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitBtn">
+                    <span id="btnText">I-submit at Magrehistro</span>
+                    <span id="btnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                  </button>
+                </form>
+
+                <!-- RESIBO / KATIBAYAN -->
+                <div id="receiptSection" class="mt-4 d-none">
+                  <div class="receipt-box text-center">
+                    <h5 class="text-success fw-bold mb-3">✓ Matagumpay na Naka-Register!</h5>
+                    <hr>
+                    <div class="text-start mb-3">
+                      <p class="mb-1"><strong>Ref Code:</strong> <span id="rRef" class="text-primary fw-bold"></span></p>
+                      <p class="mb-1"><strong>Pangalan:</strong> <span id="rName"></span></p>
+                      <p class="mb-1"><strong>Contact No:</strong> <span id="rContact"></span></p>
+                      <p class="mb-1"><strong>Doktor:</strong> <span id="rSpec" class="badge bg-primary"></span></p>
+                      <p class="mb-1"><strong>Barangay:</strong> <span id="rBrgy"></span></p>
+                      <p class="mb-1"><strong>Petsa/Oras:</strong> <span id="rTime"></span></p>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm w-100" onclick="window.print()">I-print / Save bilang PDF</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="col-md-6 col-lg-3">
-          <div class="card queue-card p-3 text-center shadow-lg">
-            <div class="doctor-title mb-1">General Phys</div>
-            <small class="text-muted">General Health</small>
-            <hr class="border-secondary">
-            <small class="text-uppercase fw-bold text-warning">Now Serving</small>
-            <div class="queue-number" id="num-GeneralPhysician">000</div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card queue-card p-3 text-center shadow-lg">
-            <div class="doctor-title mb-1">Family Med</div>
-            <small class="text-muted">Family Care</small>
-            <hr class="border-secondary">
-            <small class="text-uppercase fw-bold text-warning">Now Serving</small>
-            <div class="queue-number" id="num-FamilyMedicine">000</div>
-          </div>
-        </div>
       </div>
     </div>
 
     <!-- ADMIN EXCLUSIVE VIEW SECTION -->
-    <div id="adminExclusiveSection" class="d-none text-dark">
-      <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-white rounded shadow-sm border">
-        <span class="fw-bold text-success">🟢 Admin Dashboard Session <small class="text-muted">(Auto-sync active)</small></span>
+    <div id="adminExclusiveSection" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-white rounded shadow-sm border">
+        <span class="fw-bold text-success">🟢 Admin Active Session <small class="text-muted">(Auto-syncing active)</small></span>
         <button class="btn btn-danger btn-sm fw-bold px-3" onclick="logoutAdmin()">🚪 Logout Admin</button>
       </div>
 
-      <!-- ADMIN TABS NAVIGATION -->
       <ul class="nav nav-tabs mb-3" id="adminTabs" role="tablist">
         <li class="nav-item">
           <button class="nav-link active fw-bold" id="tab-records" data-bs-toggle="tab" data-bs-target="#content-records">📋 Patient Records</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link fw-bold" id="tab-reports" data-bs-toggle="tab" data-bs-target="#content-reports">📊 Total Check-up Reports</button>
+          <button class="nav-link fw-bold" id="tab-reports" data-bs-toggle="tab" data-bs-target="#content-reports">📊 Check-up Reports</button>
         </li>
         <li class="nav-item">
-          <button class="nav-link fw-bold" id="tab-settings" data-bs-toggle="tab" data-bs-target="#content-settings">⚙️ System & LAN Settings</button>
+          <button class="nav-link fw-bold" id="tab-settings" data-bs-toggle="tab" data-bs-target="#content-settings">⚙️ Settings & Remote Link</button>
         </li>
       </ul>
 
@@ -119,7 +287,6 @@
             <table class="table table-striped table-hover small">
               <thead class="table-dark">
                 <tr>
-                  <th>Ref ID</th>
                   <th>Pangalan</th>
                   <th>Contact No</th>
                   <th>Barangay</th>
@@ -128,7 +295,7 @@
                 </tr>
               </thead>
               <tbody id="registrationsTableBody">
-                <tr><td colspan="6" class="text-center">Nag-a-load ng records...</td></tr>
+                <tr><td colspan="5" class="text-center">Nag-a-load ng records...</td></tr>
               </tbody>
             </table>
           </div>
@@ -159,19 +326,22 @@
           </div>
         </div>
 
-        <!-- CONTENT 3: SETTINGS & LAN IP -->
+        <!-- CONTENT 3: SETTINGS -->
         <div class="tab-pane fade" id="content-settings">
           <div class="row">
             <div class="col-md-6 mb-4">
               <h6 class="fw-bold text-primary">🌐 Doctor Remote Controller Link</h6>
-              <p class="small text-muted mb-2">I-share ang link na ito sa mga Doktor/Secretary para sa kanilang Remote Controller (`remote.html`):</p>
+              <p class="small text-muted mb-2">I-share ang link na ito sa mga Doktor/Secretary para sa Remote Controller (`remote.html`):</p>
               <div class="input-group mb-3">
                 <input type="text" id="remoteControllerUrl" class="form-control form-control-sm" readonly>
                 <button class="btn btn-outline-secondary btn-sm" onclick="copyRemoteLink()">Copy Link</button>
               </div>
+
+              <h6 class="fw-bold text-primary mt-4">📅 Daily Limits (Mon-Fri)</h6>
+              <div id="settingsFormContainer">Loading settings...</div>
             </div>
             <div class="col-md-6">
-              <h6 class="fw-bold text-primary">📢 Announcement Text</h6>
+              <h6 class="fw-bold text-primary">📢 Public Announcement Control</h6>
               <textarea id="announcementInput" class="form-control form-control-sm mb-2" rows="3"></textarea>
               <button class="btn btn-warning btn-sm fw-bold w-100" onclick="publishAnnouncement()">Publish Announcement</button>
             </div>
@@ -183,7 +353,7 @@
 
   </div>
 
-  <!-- HIDDEN SETTINGS ICON BUTTON FOR ADMIN -->
+  <!-- SETTINGS ICON BUTTON FOR ADMIN ACCESS -->
   <button class="btn btn-dark btn-sm rounded-circle admin-btn" onclick="openAdminLogin()" title="Admin Settings">
     <i class="bi bi-gear-fill"></i>
   </button>
@@ -194,7 +364,7 @@
   </footer>
 
   <!-- ADMIN LOGIN MODAL -->
-  <div class="modal fade text-dark" id="adminLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal fade" id="adminLoginModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content p-3">
         <div class="modal-header border-0">
@@ -218,11 +388,89 @@
     </div>
   </div>
 
+  <!-- EDIT PATIENT MODAL -->
+  <div class="modal fade" id="editPatientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content p-3">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold text-primary">Edit Patient Record</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editPatientForm">
+            <input type="hidden" id="editId">
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Full Name</label>
+              <input type="text" class="form-control form-control-sm" id="editFullName" required>
+            </div>
+            <div class="row">
+              <div class="col-6 mb-2">
+                <label class="form-label small fw-bold">Age</label>
+                <input type="number" class="form-control form-control-sm" id="editAge" required>
+              </div>
+              <div class="col-6 mb-2">
+                <label class="form-label small fw-bold">Birthday</label>
+                <input type="date" class="form-control form-control-sm" id="editBirthday" required>
+              </div>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Contact Number</label>
+              <input type="tel" class="form-control form-control-sm" id="editContactNumber" required>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Barangay</label>
+              <select class="form-select form-select-sm" id="editBarangay" required>
+                <option value="Bagong Nayon">Bagong Nayon</option>
+                <option value="Beverly Hills">Beverly Hills</option>
+                <option value="Calawis">Calawis</option>
+                <option value="Cupang">Cupang</option>
+                <option value="Dalig">Dalig</option>
+                <option value="Dela Paz">Dela Paz</option>
+                <option value="Inarawan">Inarawan</option>
+                <option value="Mambugan">Mambugan</option>
+                <option value="Mayamot">Mayamot</option>
+                <option value="Muntindilaw">Muntindilaw</option>
+                <option value="San Isidro">San Isidro</option>
+                <option value="San Jose">San Jose</option>
+                <option value="San Juan">San Juan</option>
+                <option value="San Luis">San Luis</option>
+                <option value="San Roque">San Roque</option>
+                <option value="Santa Cruz">Santa Cruz</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small fw-bold">Address</label>
+              <input type="text" class="form-control form-control-sm" id="editAddress" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Doktor / Espesyalisasyon</label>
+              <select class="form-select form-select-sm" id="editSpecialization" required>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Internal Medicine">Internal Medicine</option>
+                <option value="General Physician">General Physician</option>
+                <option value="Family Medicine">Family Medicine</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100 btn-sm fw-bold">I-save ang Pagbabago</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbwOcAxhtlveEq9pUBUkVmXT78uj71RmUUAcU453y_ymDLBB48rLwJrfYO_RrPejviLKHw/exec";
     let isAdminLoggedIn = localStorage.getItem("cho_admin_logged_in") === "true";
-    let lastState = {};
+    let currentData = [];
+    let lastQueueState = {};
+
+    const doctors = [
+      { id: "Pediatrics", name: "Pediatrics" },
+      { id: "InternalMedicine", name: "Internal Medicine" },
+      { id: "GeneralPhysician", name: "General Physician" },
+      { id: "FamilyMedicine", name: "Family Medicine" }
+    ];
 
     function updateLiveClock() {
       const now = new Date();
@@ -244,8 +492,20 @@
       document.getElementById('liveTime').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
     }
     setInterval(updateLiveClock, 1000);
+    updateLiveClock();
 
-    // TEXT TO SPEECH (VOICE CALLING)
+    function renderQRCodes() {
+      const cleanBaseUrl = window.location.origin + window.location.pathname;
+      doctors.forEach(doc => {
+        let container = document.getElementById("qr-" + doc.id);
+        if(container) {
+          container.innerHTML = "";
+          let targetUrl = cleanBaseUrl + "?doc=" + encodeURIComponent(doc.name);
+          new QRCode(container, { text: targetUrl, width: 120, height: 120 });
+        }
+      });
+    }
+
     function speakQueueNumber(doctor, number) {
       if ('speechSynthesis' in window && number > 0) {
         const text = `Now serving queue number ${number}, for ${doctor}.`;
@@ -256,65 +516,160 @@
       }
     }
 
-    function fetchQueueDisplay() {
+    function fetchSlotCountersAndQueue() {
       fetch(scriptURL + "?action=getSlots")
       .then(res => res.json())
       .then(data => {
+        document.getElementById('statDay').textContent = data.todayName || '--';
+        document.getElementById('statLimit').textContent = data.maxSlotToday || 0;
+        document.getElementById('statRegistered').textContent = data.todayRegistered || 0;
+        document.getElementById('statOpen').textContent = data.openSlots || 0;
+        
         if (data.announcement) {
           document.getElementById('publicMarquee').textContent = data.announcement;
+          if (document.getElementById('announcementInput') && !document.getElementById('announcementInput').value) {
+            document.getElementById('announcementInput').value = data.announcement;
+          }
         }
 
-        const doctors = ["Pediatrics", "InternalMedicine", "GeneralPhysician", "FamilyMedicine"];
+        // QUEUE NUMBERS DISPLAY & VOICE ANNOUNCEMENT
         doctors.forEach(doc => {
-          let numKey = "CurrentQueue_" + doc;
+          let numKey = "CurrentQueue_" + doc.id;
           let newNum = data.settings[numKey] || 0;
-          let el = document.getElementById("num-" + doc);
+          let el = document.getElementById("num-" + doc.id);
           if (el) {
             let padded = String(newNum).padStart(3, '0');
-            if (el.textContent !== padded && lastState[doc] !== undefined && lastState[doc] !== newNum) {
-              speakQueueNumber(doc, newNum);
+            if (el.textContent !== padded && lastQueueState[doc.id] !== undefined && lastQueueState[doc.id] !== newNum) {
+              speakQueueNumber(doc.name, newNum);
             }
             el.textContent = padded;
-            lastState[doc] = newNum;
+            lastQueueState[doc.id] = newNum;
           }
         });
       })
-      .catch(err => console.error("Error display:", err));
+      .catch(err => console.error("Error slots/queue:", err));
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      fetchQueueDisplay();
-      setInterval(fetchQueueDisplay, 5000); // 5s Auto-sync
-
-      const remoteUrl = window.location.origin + window.location.pathname.replace("index.html", "") + "remote.html";
-      document.getElementById('remoteControllerUrl').value = remoteUrl;
-
-      if (isAdminLoggedIn) {
-        showAdminUI();
-        loadAdminData();
-      }
-    });
+    function showPublicUI() {
+      document.getElementById('publicHeaderSection').classList.remove('d-none');
+      document.getElementById('adminExclusiveSection').classList.add('d-none');
+      document.getElementById('appHeaderSub').textContent = "QR Code Registration & OPD Queue System";
+    }
 
     function showAdminUI() {
       document.getElementById('publicHeaderSection').classList.add('d-none');
       document.getElementById('adminExclusiveSection').classList.remove('d-none');
+      document.getElementById('appHeaderSub').textContent = "Admin Management & Patient Database";
     }
 
-    function openAdminLogin() {
-      if (isAdminLoggedIn) {
+    document.addEventListener("DOMContentLoaded", () => {
+      renderQRCodes();
+      fetchSlotCountersAndQueue();
+      setInterval(fetchSlotCountersAndQueue, 5000); // Live sync every 5 seconds
+
+      const remoteUrl = window.location.origin + window.location.pathname.replace("index.html", "") + "remote.html";
+      document.getElementById('remoteControllerUrl').value = remoteUrl;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const docParam = urlParams.get('doc');
+      
+      if(isAdminLoggedIn) {
         showAdminUI();
         loadAdminData();
       } else {
-        new bootstrap.Modal(document.getElementById('adminLoginModal')).show();
+        showPublicUI();
+        if(docParam) {
+          const select = document.getElementById('specialization');
+          select.value = docParam;
+          select.style.pointerEvents = "none";
+          
+          document.getElementById('selectedDoctorNotice').classList.remove('d-none');
+          document.getElementById('docNoticeName').textContent = docParam;
+
+          var formTabEl = document.getElementById('pills-form-tab');
+          var formTab = new bootstrap.Tab(formTabEl);
+          formTab.show();
+        }
+      }
+    });
+
+    // SUBMIT PATIENT FORM
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      
+      btn.disabled = true;
+      btnText.textContent = "Isina-save sa Database...";
+      btnSpinner.classList.remove('d-none');
+
+      const formData = {
+        specialization: document.getElementById('specialization').value,
+        fullName: document.getElementById('fullName').value,
+        age: document.getElementById('age').value,
+        birthday: document.getElementById('birthday').value,
+        contactNumber: document.getElementById('contactNumber').value,
+        barangay: document.getElementById('barangay').value,
+        address: document.getElementById('address').value
+      };
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        btn.disabled = false;
+        btnText.textContent = "I-submit at Magrehistro";
+        btnSpinner.classList.add('d-none');
+
+        if(data.status === "success") {
+          document.getElementById('appointmentForm').reset();
+          document.getElementById('rRef').textContent = data.referenceNo;
+          document.getElementById('rName').textContent = formData.fullName;
+          document.getElementById('rContact').textContent = formData.contactNumber;
+          document.getElementById('rSpec').textContent = formData.specialization;
+          document.getElementById('rBrgy').textContent = formData.barangay;
+          document.getElementById('rTime').textContent = data.timestamp;
+          document.getElementById('receiptSection').classList.remove('d-none');
+          fetchSlotCountersAndQueue();
+        } else {
+          alert("PABATID: " + data.message);
+        }
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btnText.textContent = "I-submit at Magrehistro";
+        btnSpinner.classList.add('d-none');
+        alert("Error sa koneksyon: " + error.message);
+      });
+    });
+
+    function openAdminLogin() {
+      if(isAdminLoggedIn) {
+        showAdminUI();
+        loadAdminData();
+      } else {
+        var loginModal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
+        loginModal.show();
       }
     }
 
     document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      if(document.getElementById('adminUser').value === "admin" && document.getElementById('adminPass').value === "cho") {
+      const u = document.getElementById('adminUser').value;
+      const p = document.getElementById('adminPass').value;
+
+      if(u === "admin" && p === "cho") {
         isAdminLoggedIn = true;
         localStorage.setItem("cho_admin_logged_in", "true");
-        bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
+        
+        const modalEl = document.getElementById('adminLoginModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if(modalInstance) modalInstance.hide();
+
         showAdminUI();
         loadAdminData();
       } else {
@@ -323,23 +678,95 @@
     });
 
     function logoutAdmin() {
-      if(confirm("Logout sa Admin?")) {
+      if(confirm("Sigurado ka bang gusto mong mag-logout?")) {
         isAdminLoggedIn = false;
         localStorage.removeItem("cho_admin_logged_in");
-        location.reload();
+        showPublicUI();
       }
     }
 
     function loadAdminData() {
       if(!isAdminLoggedIn) return;
+
       fetch(scriptURL + "?action=getData")
       .then(res => res.json())
       .then(data => {
-        let rows = data.registrations || [];
-        document.getElementById('repToday').textContent = rows.length;
-        document.getElementById('repWeek').textContent = rows.length;
-        document.getElementById('repMonth').textContent = rows.length;
+        currentData = data.registrations || [];
+        const tbody = document.getElementById('registrationsTableBody');
+        tbody.innerHTML = "";
+
+        document.getElementById('repToday').textContent = currentData.length;
+        document.getElementById('repWeek').textContent = currentData.length;
+        document.getElementById('repMonth').textContent = currentData.length;
+
+        if(currentData.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
+        } else {
+          currentData.slice().reverse().forEach(row => {
+            tbody.innerHTML += `
+              <tr>
+                <td><strong>${row.fullName || 'N/A'}</strong></td>
+                <td>${row.contactNumber || ''}</td>
+                <td>${row.barangay || ''}</td>
+                <td><span class="badge bg-primary">${row.specialization || ''}</span></td>
+                <td>
+                  <button class="btn btn-sm btn-warning py-0 px-2" onclick="openEditModal('${row.id}')">Edit</button>
+                  <button class="btn btn-sm btn-danger py-0 px-2" onclick="deletePatient('${row.id}')">Delete</button>
+                </td>
+              </tr>
+            `;
+          });
+        }
+
+        const settingsContainer = document.getElementById('settingsFormContainer');
+        settingsContainer.innerHTML = "";
+        const daysOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+        
+        daysOrder.forEach(day => {
+          const val = data.settings[day] !== undefined ? data.settings[day] : 300;
+          settingsContainer.innerHTML += `
+            <div class="mb-2">
+              <label class="form-label fw-bold mb-1 small">${day}</label>
+              <div class="input-group input-group-sm">
+                <input type="number" class="form-control" id="slot_${day}" value="${val}">
+                <button class="btn btn-outline-primary" type="button" onclick="updateSlot('${day}')">Save Limit</button>
+              </div>
+            </div>
+          `;
+        });
+      })
+      .catch(err => console.error("Admin Load Error:", err));
+    }
+
+    function updateSlot(day) {
+      const slots = document.getElementById(`slot_${day}`).value;
+      fetch(`${scriptURL}?action=updateSettings&day=${day}&slots=${slots}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.status === "success") {
+          alert(`Na-update ang max limit ng ${day} sa ${slots}!`);
+          loadAdminData();
+          fetchSlotCountersAndQueue();
+        }
       });
+    }
+
+    function publishAnnouncement() {
+      const annText = document.getElementById('announcementInput').value;
+      if (!annText.trim()) {
+        alert("Maglagay ng text para sa announcement!");
+        return;
+      }
+
+      fetch(`${scriptURL}?action=updateAnnouncement&announcement=${encodeURIComponent(annText)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("Matagumpay na na-publish ang announcement sa Public Dashboard!");
+          fetchSlotCountersAndQueue();
+        }
+      })
+      .catch(err => alert("Error sa pag-publish ng announcement: " + err.message));
     }
 
     function copyRemoteLink() {
@@ -347,6 +774,61 @@
       copyText.select();
       navigator.clipboard.writeText(copyText.value);
       alert("Na-copy na ang Remote Link!");
+    }
+
+    function openEditModal(id) {
+      const p = currentData.find(item => item.id.toString() === id.toString());
+      if(!p) return;
+
+      document.getElementById('editId').value = p.id;
+      document.getElementById('editFullName').value = p.fullName;
+      document.getElementById('editAge').value = p.age;
+      document.getElementById('editBirthday').value = p.birthday;
+      document.getElementById('editContactNumber').value = p.contactNumber || '';
+      document.getElementById('editBarangay').value = p.barangay;
+      document.getElementById('editAddress').value = p.address;
+      document.getElementById('editSpecialization').value = p.specialization;
+
+      new bootstrap.Modal(document.getElementById('editPatientModal')).show();
+    }
+
+    document.getElementById('editPatientForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const payload = {
+        action: "updatePatient",
+        id: document.getElementById('editId').value,
+        fullName: document.getElementById('editFullName').value,
+        age: document.getElementById('editAge').value,
+        birthday: document.getElementById('editBirthday').value,
+        contactNumber: document.getElementById('editContactNumber').value,
+        barangay: document.getElementById('editBarangay').value,
+        address: document.getElementById('editAddress').value,
+        specialization: document.getElementById('editSpecialization').value
+      };
+
+      fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        bootstrap.Modal.getInstance(document.getElementById('editPatientModal')).hide();
+        loadAdminData();
+        fetchSlotCountersAndQueue();
+      });
+    });
+
+    function deletePatient(id) {
+      if(confirm("Sigurado ka bang gusto mong burahin ang record na ito?")) {
+        fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: "deletePatient", id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          loadAdminData();
+          fetchSlotCountersAndQueue();
+        });
+      }
     }
   </script>
 </body>

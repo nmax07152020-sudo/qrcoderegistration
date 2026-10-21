@@ -35,7 +35,6 @@
       <div id="liveDate">--</div>
       <div id="liveTime" class="fw-bold text-warning">--</div>
     </div>
-    <h3 id="appHeaderTitle">Doctor Consultation & Queue Portal</h3>
     <p id="appHeaderSub" class="mb-0 small fw-bold">QR Code Registration & OPD Queue System</p>
   </div>
 
@@ -135,7 +134,7 @@
         </div>
       </div>
 
-      <!-- PATIENT INFORMATION FORM SECTION (SA BABA NG PUBLIC DASHBOARD) -->
+      <!-- PATIENT INFORMATION FORM SECTION -->
       <div id="section-form" class="mt-4">
         <div class="row justify-content-center">
           <div class="col-md-8 col-lg-6">
@@ -679,12 +678,16 @@
       }
     }
 
-    // HELPER: FORMAT DATE TO YYYY-MM-DD
+    // HELPER: CLEAN DATE FORMATTING (LINISIN ANG ISO TIMESTAMP)
     function formatCleanDate(rawDate) {
       if (!rawDate) return 'N/A';
       try {
-        let d = new Date(rawDate);
-        if (isNaN(d.getTime())) return rawDate;
+        let str = rawDate.toString().trim();
+        if (str.includes('T')) {
+          str = str.split('T')[0];
+        }
+        let d = new Date(str);
+        if (isNaN(d.getTime())) return str;
         let month = '' + (d.getMonth() + 1);
         let day = '' + d.getDate();
         let year = d.getFullYear();
@@ -720,7 +723,7 @@
           tbody.innerHTML = `<tr><td colspan="9" class="text-center">Wala pang nakarehistrong pasyente.</td></tr>`;
         } else {
           currentData.slice().reverse().forEach(row => {
-            let formattedRegisteredDate = row.timestamp ? new Date(row.timestamp).toLocaleString() : 'N/A';
+            let formattedRegisteredDate = row.timestamp ? formatCleanDate(row.timestamp) : 'N/A';
             let cleanBday = formatCleanDate(row.birthday);
 
             tbody.innerHTML += `
@@ -847,7 +850,7 @@
         birthday: document.getElementById('editBirthday').value,
         contactNumber: document.getElementById('editContactNumber').value,
         barangay: document.getElementById('editBarangay').value,
-        address: document.getElementById('editAddress').value,
+        address: document.getElementById('address').value,
         specialization: document.getElementById('editSpecialization').value
       };
 

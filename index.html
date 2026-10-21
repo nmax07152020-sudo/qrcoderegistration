@@ -35,6 +35,7 @@
       <div id="liveDate">--</div>
       <div id="liveTime" class="fw-bold text-warning">--</div>
     </div>
+    <h3 id="appHeaderTitle">>Doctor Consultation</h3>
     <p id="appHeaderSub" class="mb-0 small fw-bold">QR Code Registration & OPD Queue System</p>
   </div>
 
@@ -92,7 +93,7 @@
             </div>
           </div>
 
-          <div class="col-md-6 col-lg-3 mb-4">
+          <div class="col-6 col-md-3 mb-4">
             <div class="card p-3 qr-card h-100">
               <h5 class="text-primary fw-bold mb-1">Internal Medicine</h5>
               <small class="text-muted">Adult Care</small>
@@ -134,8 +135,8 @@
         </div>
       </div>
 
-      <!-- PATIENT INFORMATION FORM SECTION -->
-      <div id="section-form" class="mt-4">
+      <!-- PATIENT INFORMATION FORM SECTION (NAKA-HIDE BY DEFAULT, LALABAS LANG KAPAG MAY QR SCAN) -->
+      <div id="section-form" class="mt-4 d-none">
         <div class="row justify-content-center">
           <div class="col-md-8 col-lg-6">
             <div class="card p-4 shadow">
@@ -526,7 +527,6 @@
           }
         }
 
-        // QUEUE NUMBERS DISPLAY & VOICE ANNOUNCEMENT
         doctors.forEach(doc => {
           let numKey = "CurrentQueue_" + doc.id;
           let newNum = data.settings[numKey] || 0;
@@ -559,7 +559,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       renderQRCodes();
       fetchSlotCountersAndQueue();
-      setInterval(fetchSlotCountersAndQueue, 5000); // Live sync every 5 seconds
+      setInterval(fetchSlotCountersAndQueue, 5000);
 
       const remoteUrl = window.location.origin + window.location.pathname.replace("index.html", "") + "remote.html";
       document.getElementById('remoteControllerUrl').value = remoteUrl;
@@ -573,6 +573,8 @@
       } else {
         showPublicUI();
         if(docParam) {
+          // Ipakita ang Patient Form kapag may QR Code scan galing sa doktor
+          document.getElementById('section-form').classList.remove('d-none');
           const select = document.getElementById('specialization');
           select.value = docParam;
           select.style.pointerEvents = "none";
@@ -580,13 +582,11 @@
           document.getElementById('selectedDoctorNotice').classList.remove('d-none');
           document.getElementById('docNoticeName').textContent = docParam;
 
-          // Scroll directly to Patient Form upon scanning QR
           document.getElementById('section-form').scrollIntoView({ behavior: 'smooth' });
         }
       }
     });
 
-    // SUBMIT PATIENT FORM WITH LOADING SPINNER
     document.getElementById('appointmentForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -678,7 +678,6 @@
       }
     }
 
-    // HELPER: CLEAN DATE FORMATTING (LINISIN ANG ISO TIMESTAMP)
     function formatCleanDate(rawDate) {
       if (!rawDate) return 'N/A';
       try {
@@ -699,11 +698,9 @@
       }
     }
 
-    // RENDER FULL PATIENT DETAILS IN ADMIN TABLE
     function loadAdminData() {
       if(!isAdminLoggedIn) return;
 
-      const refreshBtnText = document.getElementById('adminRefreshText');
       const refreshSpinner = document.getElementById('adminRefreshSpinner');
       if (refreshSpinner) refreshSpinner.classList.remove('d-none');
 
@@ -850,7 +847,7 @@
         birthday: document.getElementById('editBirthday').value,
         contactNumber: document.getElementById('editContactNumber').value,
         barangay: document.getElementById('editBarangay').value,
-        address: document.getElementById('address').value,
+        address: document.getElementById('editAddress').value,
         specialization: document.getElementById('editSpecialization').value
       };
 

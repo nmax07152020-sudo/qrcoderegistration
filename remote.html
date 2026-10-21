@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Remote Queue Controller</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f8fafc; font-family: sans-serif; }
+    .card-remote { border-radius: 1.2rem; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+    .num-display { font-size: 5rem; font-weight: 900; color: #0284c7; }
+  </style>
+</head>
+<body class="p-3">
+
+  <div class="container" style="max-width: 500px;">
+    <div class="card card-remote p-4 text-center mt-3">
+      <h5 class="text-secondary fw-bold mb-3">Doctor Remote Queue Controller</h5>
+      
+      <div class="mb-3">
+        <label class="form-label fw-bold">Pumili ng Doktor / Department:</label>
+        <select class="form-select fw-bold" id="docSelect" onchange="loadCurrentQueue()">
+          <option value="Pediatrics">Pediatrics</option>
+          <option value="InternalMedicine">Internal Medicine</option>
+          <option value="GeneralPhysician">General Physician</option>
+          <option value="FamilyMedicine">Family Medicine</option>
+        </select>
+      </div>
+
+      <div class="my-3">
+        <small class="text-muted fw-bold text-uppercase">Kasalukuyang Queue Number</small>
+        <div class="num-display" id="remoteNum">000</div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-success btn-lg py-3 fw-bold shadow-sm" onclick="sendQueueAction('next')">
+          NEXT NUMBER ➔
+        </button>
+        <div class="row g-2">
+          <div class="col-6">
+            <button class="btn btn-warning w-100 py-2 fw-bold" onclick="sendQueueAction('repeat')">
+              📢 REPEAT CALL
+            </button>
+          </div>
+          <div class="col-6">
+            <button class="btn btn-secondary w-100 py-2 fw-bold" onclick="sendQueueAction('back')">
+              ⬅ BACK
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwOcAxhtlveEq9pUBUkVmXT78uj71RmUUAcU453y_ymDLBB48rLwJrfYO_RrPejviLKHw/exec";
+
+    function loadCurrentQueue() {
+      const doc = document.getElementById('docSelect').value;
+      fetch(scriptURL + "?action=getSlots")
+      .then(res => res.json())
+      .then(data => {
+        let key = "CurrentQueue_" + doc;
+        let val = data.settings[key] || 0;
+        document.getElementById('remoteNum').textContent = String(val).padStart(3, '0');
+      });
+    }
+
+    function sendQueueAction(dir) {
+      const doc = document.getElementById('docSelect').value;
+      fetch(`${scriptURL}?action=updateQueue&doctor=${doc}&direction=${dir}`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('remoteNum').textContent = String(data.currentQueue).padStart(3, '0');
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadCurrentQueue);
+  </script>
+</body>
+</html>
